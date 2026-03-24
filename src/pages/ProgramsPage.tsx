@@ -73,11 +73,25 @@ export function ProgramsPage({ onNavigate }: ProgramsPageProps) {
   const enrolledKids = children.filter(c => c.programs.includes(activeProgram))
   const programTx = transactions.filter(tx => tx.programs.includes(activeProgram))
 
+  // Soft pastel backgrounds for program cards (light, not dark)
+  const lightBgMap: Record<ProgramId, string> = {
+    cccap: '#e0f2fe',
+    upk: '#dcfce7',
+    larimer: '#fef9c3',
+    cap: '#ede9fe',
+  }
+  const accentColorMap: Record<ProgramId, string> = {
+    cccap: '#0369a1',
+    upk: '#166534',
+    larimer: '#92400e',
+    cap: '#5b21b6',
+  }
+  // Keep the darker gradient only for the selected detail header, but make it softer
   const gradientMap: Record<ProgramId, string> = {
-    cccap: 'linear-gradient(135deg, #1e40af, #0ea5e9)',
-    upk: 'linear-gradient(135deg, #166534, #22c55e)',
-    larimer: 'linear-gradient(135deg, #92400e, #f59e0b)',
-    cap: 'linear-gradient(135deg, #5b21b6, #a78bfa)',
+    cccap: 'linear-gradient(135deg, #0284c7, #38bdf8)',
+    upk: 'linear-gradient(135deg, #16a34a, #4ade80)',
+    larimer: 'linear-gradient(135deg, #b45309, #fbbf24)',
+    cap: 'linear-gradient(135deg, #7c3aed, #c4b5fd)',
   }
 
   return (
@@ -97,21 +111,23 @@ export function ProgramsPage({ onNavigate }: ProgramsPageProps) {
               key={id}
               onClick={() => setActiveProgram(id)}
               className={cn(
-                'rounded-2xl p-4 text-left transition-all program-card',
-                isActive ? 'shadow-lg scale-[1.02]' : 'hover:shadow-md bg-white border border-slate-200'
+                'rounded-2xl p-4 text-left transition-all program-card border',
+                isActive
+                  ? 'shadow-md ring-2 ring-offset-1'
+                  : 'bg-white border-slate-200 hover:shadow-sm hover:border-slate-300'
               )}
-              style={isActive ? { background: gradientMap[id] } : {}}
+              style={isActive
+                ? { backgroundColor: lightBgMap[id], borderColor: accentColorMap[id] }
+                : {}}
             >
-              <div className={cn(
-                'w-9 h-9 rounded-xl flex items-center justify-center mb-3',
-                isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
-              )}>
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-3"
+                style={{ backgroundColor: isActive ? 'white' : '#f1f5f9', color: isActive ? accentColorMap[id] : '#64748b' }}>
                 {icon}
               </div>
-              <div className={cn('font-bold text-sm', isActive ? 'text-white' : 'text-slate-900')}>{p.name}</div>
-              <div className={cn('text-xs mt-0.5', isActive ? 'text-white/70' : 'text-slate-500')}>{shortDesc}</div>
-              <div className={cn('text-lg font-bold mt-2', isActive ? 'text-white' : 'text-slate-900')}>
-                {formatCurrency(p.monthlyBenefit)}<span className={cn('text-xs font-normal', isActive ? 'text-white/60' : 'text-slate-500')}>/mo</span>
+              <div className="font-semibold text-sm text-slate-800">{p.name}</div>
+              <div className="text-xs mt-0.5 text-slate-500">{shortDesc}</div>
+              <div className="text-lg font-bold mt-2 text-slate-800">
+                {formatCurrency(p.monthlyBenefit)}<span className="text-xs font-normal text-slate-400">/mo</span>
               </div>
             </button>
           )

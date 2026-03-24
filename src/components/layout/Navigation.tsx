@@ -17,7 +17,7 @@ const navItems: { id: PageId; label: string; icon: React.ReactNode; mobileLabel:
 
 export function Navigation({ activePage, onNavigate }: NavigationProps) {
   return (
-    <nav className="bg-white border-b border-slate-200 sticky top-[72px] z-40 shadow-sm">
+    <nav className="bg-white border-b border-slate-100 sticky top-16 z-40">
       <div className="max-w-5xl mx-auto px-4">
         <div className="flex">
           {navItems.map((item) => (
