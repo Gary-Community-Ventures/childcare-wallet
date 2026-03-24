@@ -31,8 +31,17 @@ export function Header({ onNavigate }: HeaderProps) {
 
         {/* Right side */}
         <div className="flex items-center gap-2">
-          {/* Notification bell */}
-          <button className="relative w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors">
+          {/* Notification bell — scrolls to upcoming deadlines */}
+          <button
+            onClick={() => {
+              onNavigate('wallet')
+              setTimeout(() => {
+                document.getElementById('upcoming-deadlines')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              }, 80)
+            }}
+            className="relative w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+            title="View upcoming deadlines"
+          >
             <Bell className="w-4 h-4 text-slate-500" />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-400 rounded-full ring-2 ring-white" />
           </button>

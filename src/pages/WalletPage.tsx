@@ -103,7 +103,7 @@ export function WalletPage({ onNavigate }: WalletPageProps) {
 
       {/* Upcoming Deadlines */}
       {allReminders.length > 0 && (
-        <div>
+        <div id="upcoming-deadlines">
           <h2 className="font-semibold text-slate-700 text-base mb-3 flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-amber-400" />
             Upcoming Deadlines
