@@ -26,6 +26,7 @@ const programColors: Record<string, { bg: string; text: string; border: string }
   upk: { bg: '#dcfce7', text: '#166534', border: '#bbf7d0' },
   larimer: { bg: '#fef3c7', text: '#92400e', border: '#fde68a' },
   cap: { bg: '#ede9fe', text: '#5b21b6', border: '#ddd6fe' },
+  cctc: { bg: '#f3e8ff', text: '#7e22ce', border: '#e9d5ff' },
 }
 
 export function ApplicationsPage({ onNavigate }: ApplicationsPageProps) {
