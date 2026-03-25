@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowUpRight, TrendingUp, Calendar, AlertTriangle, CheckCircle, Clock, ChevronRight, PlusCircle, Send, X } from 'lucide-react'
+import { ArrowUpRight, TrendingUp, Calendar, AlertTriangle, CheckCircle, Clock, ChevronRight, PlusCircle, Send, X, Sparkles } from 'lucide-react'
 import { family, walletSummary, transactions, programs, children, providers } from '../data/mockData'
 import { formatCurrency, formatShortDate, daysUntil, getUrgencyLevel } from '../lib/utils'
 import { cn } from '../lib/utils'
@@ -195,6 +195,7 @@ function PayModal({ onClose }: { onClose: () => void }) {
 
 export function WalletPage({ onNavigate }: WalletPageProps) {
   const [payModalOpen, setPayModalOpen] = useState(false)
+  const [eligibilityBannerDismissed, setEligibilityBannerDismissed] = useState(false)
 
   const allReminders = Object.values(programs).flatMap(p => p.reminders || [])
     .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
@@ -215,6 +216,37 @@ export function WalletPage({ onNavigate }: WalletPageProps) {
           <div className="text-xs text-slate-400">As of March 1, 2025</div>
         </div>
       </div>
+
+      {/* Eligibility Recommendation Banner */}
+      {!eligibilityBannerDismissed && (
+        <div className="rounded-2xl border border-violet-200 bg-gradient-to-r from-violet-50 to-purple-50 p-4 flex items-start gap-3 shadow-sm">
+          <div className="w-9 h-9 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0 border border-violet-200 mt-0.5">
+            <Sparkles className="w-4 h-4 text-violet-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-slate-800">You may qualify for more assistance</p>
+            <p className="text-sm text-slate-600 mt-0.5 leading-relaxed">
+              Based on your qualifications for{' '}
+              <span className="font-semibold text-sky-700">CCCAP</span>, you are also likely eligible for the{' '}
+              <span className="font-semibold text-violet-700">Colorado Child Care Tax Credit (CCTC)</span> — which can refund up to 50% of annual care expenses.
+            </p>
+            <button
+              onClick={() => onNavigate('apply')}
+              className="inline-flex items-center gap-1.5 mt-2.5 text-sm font-semibold text-violet-700 hover:text-violet-900 transition-colors group"
+            >
+              Complete the application
+              <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            </button>
+          </div>
+          <button
+            onClick={() => setEligibilityBannerDismissed(true)}
+            className="w-7 h-7 rounded-full hover:bg-violet-100 flex items-center justify-center flex-shrink-0 transition-colors mt-0.5"
+            aria-label="Dismiss"
+          >
+            <X className="w-3.5 h-3.5 text-slate-400" />
+          </button>
+        </div>
+      )}
 
       {/* Wallet Card */}
       <div className="rounded-2xl overflow-hidden border border-sky-100 shadow-sm" style={{background: 'linear-gradient(135deg, #f0f9ff 0%, #ecfdf5 100%)'}}>
