@@ -250,15 +250,27 @@ export const providers = [
   },
 ]
 
+// breakdown shows how each payment was funded across programs
+const littleStarsBreakdown = [
+  { program: 'cccap', name: 'CCCAP', amount: 940, color: '#0369a1', lightColor: '#e0f2fe' },
+  { program: 'upk', name: 'UPK Colorado', amount: 440, color: '#216737', lightColor: '#dcfce7' },
+  { program: 'larimer', name: 'Larimer County', amount: 150, color: '#b45309', lightColor: '#fef3c7' },
+  { program: 'cap', name: 'CAP', amount: 50, color: '#6d28d9', lightColor: '#ede9fe' },
+]
+const abuelaBreakdown = [
+  { program: 'larimer', name: 'Larimer County', amount: 150, color: '#b45309', lightColor: '#fef3c7' },
+  { program: 'cap', name: 'CAP', amount: 410, color: '#6d28d9', lightColor: '#ede9fe' },
+]
+
 export const transactions = [
-  { id: 't1', date: '2025-03-01', provider: 'Little Stars Learning Center', providerId: 'p1', amount: 1580, program: 'Mixed', programs: ['cccap', 'upk', 'larimer', 'cap'], status: 'completed', type: 'payment', children: ['Sofia'] },
-  { id: 't2', date: '2025-03-01', provider: 'Abuela Carmen (FFN)', providerId: 'p3', amount: 560, program: 'CAP + Larimer', programs: ['cap', 'larimer'], status: 'completed', type: 'payment', children: ['Miguel'] },
-  { id: 't3', date: '2025-02-01', provider: 'Little Stars Learning Center', providerId: 'p1', amount: 1580, program: 'Mixed', programs: ['cccap', 'upk', 'larimer', 'cap'], status: 'completed', type: 'payment', children: ['Sofia'] },
-  { id: 't4', date: '2025-02-01', provider: 'Abuela Carmen (FFN)', providerId: 'p3', amount: 560, program: 'CAP + Larimer', programs: ['cap', 'larimer'], status: 'completed', type: 'payment', children: ['Miguel'] },
-  { id: 't5', date: '2025-01-01', provider: 'Little Stars Learning Center', providerId: 'p1', amount: 1580, program: 'Mixed', programs: ['cccap', 'upk', 'larimer', 'cap'], status: 'completed', type: 'payment', children: ['Sofia'] },
-  { id: 't6', date: '2025-01-01', provider: 'Abuela Carmen (FFN)', providerId: 'p3', amount: 560, program: 'CAP + Larimer', programs: ['cap', 'larimer'], status: 'completed', type: 'payment', children: ['Miguel'] },
-  { id: 't7', date: '2024-12-01', provider: 'Little Stars Learning Center', providerId: 'p1', amount: 1580, program: 'Mixed', programs: ['cccap', 'upk', 'larimer', 'cap'], status: 'completed', type: 'payment', children: ['Sofia'] },
-  { id: 't8', date: '2024-12-01', provider: 'Abuela Carmen (FFN)', providerId: 'p3', amount: 560, program: 'CAP + Larimer', programs: ['cap', 'larimer'], status: 'completed', type: 'payment', children: ['Miguel'] },
+  { id: 't1', date: '2025-03-01', provider: 'Little Stars Learning Center', providerId: 'p1', amount: 1580, program: 'Mixed', programs: ['cccap', 'upk', 'larimer', 'cap'], status: 'completed', type: 'payment', children: ['Sofia'], breakdown: littleStarsBreakdown },
+  { id: 't2', date: '2025-03-01', provider: 'Abuela Carmen (FFN)', providerId: 'p3', amount: 560, program: 'CAP + Larimer', programs: ['cap', 'larimer'], status: 'completed', type: 'payment', children: ['Miguel'], breakdown: abuelaBreakdown },
+  { id: 't3', date: '2025-02-01', provider: 'Little Stars Learning Center', providerId: 'p1', amount: 1580, program: 'Mixed', programs: ['cccap', 'upk', 'larimer', 'cap'], status: 'completed', type: 'payment', children: ['Sofia'], breakdown: littleStarsBreakdown },
+  { id: 't4', date: '2025-02-01', provider: 'Abuela Carmen (FFN)', providerId: 'p3', amount: 560, program: 'CAP + Larimer', programs: ['cap', 'larimer'], status: 'completed', type: 'payment', children: ['Miguel'], breakdown: abuelaBreakdown },
+  { id: 't5', date: '2025-01-01', provider: 'Little Stars Learning Center', providerId: 'p1', amount: 1580, program: 'Mixed', programs: ['cccap', 'upk', 'larimer', 'cap'], status: 'completed', type: 'payment', children: ['Sofia'], breakdown: littleStarsBreakdown },
+  { id: 't6', date: '2025-01-01', provider: 'Abuela Carmen (FFN)', providerId: 'p3', amount: 560, program: 'CAP + Larimer', programs: ['cap', 'larimer'], status: 'completed', type: 'payment', children: ['Miguel'], breakdown: abuelaBreakdown },
+  { id: 't7', date: '2024-12-01', provider: 'Little Stars Learning Center', providerId: 'p1', amount: 1580, program: 'Mixed', programs: ['cccap', 'upk', 'larimer', 'cap'], status: 'completed', type: 'payment', children: ['Sofia'], breakdown: littleStarsBreakdown },
+  { id: 't8', date: '2024-12-01', provider: 'Abuela Carmen (FFN)', providerId: 'p3', amount: 560, program: 'CAP + Larimer', programs: ['cap', 'larimer'], status: 'completed', type: 'payment', children: ['Miguel'], breakdown: abuelaBreakdown },
 ]
 
 export const applications = [

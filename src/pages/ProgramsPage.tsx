@@ -333,19 +333,58 @@ export function ProgramsPage({ onNavigate }: ProgramsPageProps) {
                 {programTx.slice(0, 5).map((tx, i) => (
                   <div
                     key={tx.id}
-                    className={cn('flex items-center gap-3 px-4 py-3', i < Math.min(programTx.length, 5) - 1 ? 'border-b border-slate-100' : '')}
+                    className={cn('px-4 py-3', i < Math.min(programTx.length, 5) - 1 ? 'border-b border-slate-100' : '')}
                   >
-                    <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-sm">
-                      {tx.providerId === 'p1' ? '⭐' : tx.providerId === 'p3' ? '🏠' : '🌻'}
+                    {/* Top row: provider + total */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-sm flex-shrink-0">
+                        {tx.providerId === 'p1' ? '⭐' : tx.providerId === 'p3' ? '🏠' : '🌻'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-slate-900 truncate">{tx.provider}</div>
+                        <div className="text-xs text-slate-400">{formatShortDate(tx.date)} · {tx.children.join(', ')}</div>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <div className="font-semibold text-slate-900 text-sm">{formatCurrency(tx.amount)}</div>
+                        <div className="text-xs text-green-600">Paid</div>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-slate-900 truncate">{tx.provider}</div>
-                      <div className="text-xs text-slate-400">{formatShortDate(tx.date)} · {tx.children.join(', ')}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-semibold text-slate-900 text-sm">{formatCurrency(tx.amount)}</div>
-                      <div className="text-xs text-green-600">Paid</div>
-                    </div>
+
+                    {/* Breakdown row */}
+                    {tx.breakdown && tx.breakdown.length > 0 && (
+                      <div className="mt-2 ml-11">
+                        {/* Stacked bar */}
+                        <div className="flex h-1.5 rounded-full overflow-hidden gap-px mb-2">
+                          {tx.breakdown.map(b => (
+                            <div
+                              key={b.program}
+                              className="h-full"
+                              style={{
+                                width: `${(b.amount / tx.amount) * 100}%`,
+                                backgroundColor: b.color,
+                                opacity: 0.7,
+                              }}
+                            />
+                          ))}
+                        </div>
+                        {/* Labels */}
+                        <div className="flex flex-wrap gap-1.5">
+                          {tx.breakdown.map(b => (
+                            <span
+                              key={b.program}
+                              className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium"
+                              style={{ backgroundColor: b.lightColor, color: b.color }}
+                            >
+                              <span
+                                className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                                style={{ backgroundColor: b.color }}
+                              />
+                              {b.name} · {formatCurrency(b.amount)}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
