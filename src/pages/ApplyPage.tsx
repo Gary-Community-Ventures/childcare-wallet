@@ -2,12 +2,31 @@ import { useState } from 'react'
 import {
   Building2, GraduationCap, MapPin, Rocket,
   CheckCircle, ChevronRight, Clock, FileText,
-  Info, AlertTriangle, ArrowLeft
+  Info, AlertTriangle, ArrowLeft, Upload, FolderOpen, X
 } from 'lucide-react'
-import { programs } from '../data/mockData'
+import { programs, applications, children } from '../data/mockData'
 import { formatShortDate, daysUntil } from '../lib/utils'
 import { cn } from '../lib/utils'
 import type { PageId } from '../App'
+
+// Build document vault once (same logic as ApplicationsPage)
+type DocVaultEntry = { children: string[]; programs: { id: string; name: string }[] }
+const docVault = new Map<string, DocVaultEntry>()
+applications.forEach(app => {
+  if (!app.documents || app.documents.length === 0) return
+  const programInfo = programs[app.program as keyof typeof programs]
+  const enrolledIds: string[] = programInfo?.enrolledChildren ?? []
+  const childNames = enrolledIds.length > 0
+    ? children.filter(c => enrolledIds.includes(c.id)).map(c => c.name.split(' ')[0])
+    : children.map(c => c.name.split(' ')[0])
+  app.documents.forEach(doc => {
+    if (!docVault.has(doc)) docVault.set(doc, { children: [], programs: [] })
+    const entry = docVault.get(doc)!
+    childNames.forEach(n => { if (!entry.children.includes(n)) entry.children.push(n) })
+    if (!entry.programs.find(p => p.id === app.program))
+      entry.programs.push({ id: app.program, name: app.programName })
+  })
+})
 
 interface ApplyPageProps {
   onNavigate: (page: PageId) => void
@@ -89,6 +108,23 @@ export function ApplyPage({ onNavigate }: ApplyPageProps) {
     notes: '',
   })
   const [submitted, setSubmitted] = useState(false)
+  const [selectedVaultDocs, setSelectedVaultDocs] = useState<string[]>([])
+  const [uploadedFiles, setUploadedFiles] = useState<string[]>([])
+  const [vaultExpanded, setVaultExpanded] = useState(true)
+
+  const toggleVaultDoc = (doc: string) =>
+    setSelectedVaultDocs(prev =>
+      prev.includes(doc) ? prev.filter(d => d !== doc) : [...prev, doc]
+    )
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []).map(f => f.name)
+    setUploadedFiles(prev => [...prev, ...files.filter(f => !prev.includes(f))])
+    e.target.value = ''
+  }
+
+  const removeUploadedFile = (i: number) =>
+    setUploadedFiles(prev => prev.filter((_, idx) => idx !== i))
 
   const programOrder: AppProgram[] = ['cccap', 'upk', 'larimer', 'cap']
 
@@ -243,7 +279,7 @@ export function ApplyPage({ onNavigate }: ApplyPageProps) {
             style={{ background: { cccap: 'linear-gradient(135deg, #1e40af, #0ea5e9)', upk: 'linear-gradient(135deg, #166534, #22c55e)', larimer: 'linear-gradient(135deg, #92400e, #f59e0b)', cap: 'linear-gradient(135deg, #5b21b6, #a78bfa)' }[selectedProgram] }}
           >
             <div className="text-white/70 text-xs uppercase tracking-widest mb-1">{programs[selectedProgram].name}</div>
-            <h2 className="font-display text-xl font-bold">{appType === 'renewal' ? 'Renewal Application' : 'New Application'}</h2>
+            <h2 className="font-display text-xl font-bold">{appType === 'renewal' ? 'Renewal Application' : appType === 'appeal' ? 'Appeal / Reconsideration' : 'New Application'}</h2>
             <p className="text-white/70 text-sm mt-1">{programs[selectedProgram].fullName}</p>
 
             {/* Steps */}
@@ -326,6 +362,110 @@ export function ApplyPage({ onNavigate }: ApplyPageProps) {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Documents Upload */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-semibold text-slate-700">Documents Upload</label>
+                <span className="text-xs text-slate-400">{selectedVaultDocs.length + uploadedFiles.length} attached</span>
+              </div>
+              <p className="text-slate-500 text-xs mb-3">
+                Select from your Document Vault to reuse previously submitted files, or upload new ones.
+              </p>
+
+              {/* Vault reuse panel */}
+              {docVault.size > 0 && (
+                <div className="mb-3 rounded-xl border border-violet-100 bg-violet-50/50 overflow-hidden">
+                  <button
+                    onClick={() => setVaultExpanded(v => !v)}
+                    className="w-full flex items-center justify-between px-4 py-2.5 text-left"
+                  >
+                    <span className="flex items-center gap-2 text-xs font-semibold text-violet-700 uppercase tracking-wide">
+                      <FolderOpen className="w-3.5 h-3.5" /> Document Vault
+                      <span className="bg-violet-200 text-violet-800 px-1.5 py-0.5 rounded-full text-xs font-bold">{docVault.size}</span>
+                    </span>
+                    <ChevronRight className={cn('w-4 h-4 text-violet-400 transition-transform', vaultExpanded ? 'rotate-90' : '')} />
+                  </button>
+                  {vaultExpanded && (
+                    <div className="px-4 pb-3 flex flex-wrap gap-2">
+                      {Array.from(docVault.entries()).map(([docName, entry]) => {
+                        const isSelected = selectedVaultDocs.includes(docName)
+                        return (
+                          <button
+                            key={docName}
+                            type="button"
+                            onClick={() => toggleVaultDoc(docName)}
+                            className={cn(
+                              'inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border font-medium transition-all text-left',
+                              isSelected
+                                ? 'bg-violet-600 text-white border-violet-600 shadow-sm'
+                                : 'bg-white text-violet-700 border-violet-200 hover:bg-violet-100'
+                            )}
+                          >
+                            {isSelected
+                              ? <CheckCircle className="w-3 h-3 flex-shrink-0" />
+                              : <FileText className="w-3 h-3 flex-shrink-0" />}
+                            <span className="truncate max-w-[180px]">{docName}</span>
+                            {entry.children.length > 0 && (
+                              <span className="opacity-60 font-normal">
+                                · {entry.children.map(c => children.find(ch => ch.name.split(' ')[0] === c)?.avatar).join('')}
+                              </span>
+                            )}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* New file upload area */}
+              <div
+                className="border-2 border-dashed border-slate-200 rounded-xl p-5 text-center bg-slate-50 hover:bg-slate-100 cursor-pointer transition-colors"
+                onClick={() => document.getElementById('doc-upload-input')?.click()}
+              >
+                <Upload className="w-6 h-6 text-slate-400 mx-auto mb-1.5" />
+                <p className="text-sm text-slate-600 font-medium">Drop files here or <span className="text-blue-600">browse</span></p>
+                <p className="text-xs text-slate-400 mt-0.5">PDF, JPG, PNG — up to 10 MB each</p>
+                <input
+                  id="doc-upload-input"
+                  type="file"
+                  multiple
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                />
+              </div>
+
+              {/* Attached summary */}
+              {(selectedVaultDocs.length > 0 || uploadedFiles.length > 0) && (
+                <div className="mt-3 space-y-1.5">
+                  <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                    Attached ({selectedVaultDocs.length + uploadedFiles.length})
+                  </div>
+                  {selectedVaultDocs.map(doc => (
+                    <div key={doc} className="flex items-center gap-2 bg-violet-50 border border-violet-100 rounded-lg px-3 py-2">
+                      <FolderOpen className="w-3.5 h-3.5 text-violet-500 flex-shrink-0" />
+                      <span className="text-xs text-slate-700 flex-1 truncate">{doc}</span>
+                      <span className="text-xs text-violet-500 font-medium whitespace-nowrap">From vault</span>
+                      <button type="button" onClick={() => toggleVaultDoc(doc)} className="text-slate-300 hover:text-slate-500 transition-colors">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                  {uploadedFiles.map((f, i) => (
+                    <div key={i} className="flex items-center gap-2 bg-green-50 border border-green-100 rounded-lg px-3 py-2">
+                      <FileText className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
+                      <span className="text-xs text-slate-700 flex-1 truncate">{f}</span>
+                      <span className="text-xs text-green-600 font-medium whitespace-nowrap">New upload</span>
+                      <button type="button" onClick={() => removeUploadedFile(i)} className="text-slate-300 hover:text-slate-500 transition-colors">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Renewal note */}
