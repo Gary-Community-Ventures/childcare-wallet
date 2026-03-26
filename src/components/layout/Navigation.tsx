@@ -1,4 +1,4 @@
-import { Wallet, LayoutGrid, FileText, Users, PlusCircle } from 'lucide-react'
+import { Wallet, LayoutGrid, FileText, Users, Baby, PlusCircle } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import type { PageId } from '../../App'
 
@@ -12,6 +12,7 @@ const navItems: { id: PageId; label: string; icon: React.ReactNode; mobileLabel:
   { id: 'programs', label: 'Programs', mobileLabel: 'Programs', icon: <LayoutGrid className="w-4 h-4" /> },
   { id: 'applications', label: 'Applications', mobileLabel: 'Apps', icon: <FileText className="w-4 h-4" /> },
   { id: 'providers', label: 'My Providers', mobileLabel: 'Providers', icon: <Users className="w-4 h-4" /> },
+  { id: 'children', label: 'My Children', mobileLabel: 'Children', icon: <Baby className="w-4 h-4" /> },
   { id: 'apply', label: 'Apply', mobileLabel: 'Apply', icon: <PlusCircle className="w-4 h-4" /> },
 ]
 

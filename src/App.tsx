@@ -6,8 +6,9 @@ import { ProgramsPage } from './pages/ProgramsPage'
 import { ApplicationsPage } from './pages/ApplicationsPage'
 import { ProvidersPage } from './pages/ProvidersPage'
 import { ApplyPage } from './pages/ApplyPage'
+import { ChildrenPage } from './pages/ChildrenPage'
 
-export type PageId = 'wallet' | 'programs' | 'applications' | 'providers' | 'apply'
+export type PageId = 'wallet' | 'programs' | 'applications' | 'providers' | 'children' | 'apply'
 
 export default function App() {
   const [activePage, setActivePage] = useState<PageId>('wallet')
@@ -24,6 +25,7 @@ export default function App() {
       case 'programs': return <ProgramsPage onNavigate={handleNavigate} initialProgram={programFocus ?? undefined} />
       case 'applications': return <ApplicationsPage onNavigate={handleNavigate} />
       case 'providers': return <ProvidersPage />
+      case 'children': return <ChildrenPage />
       case 'apply': return <ApplyPage onNavigate={handleNavigate} />
       default: return <WalletPage onNavigate={handleNavigate} />
     }
