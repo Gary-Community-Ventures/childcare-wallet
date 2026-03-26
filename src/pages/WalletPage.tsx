@@ -3,6 +3,7 @@ import { ArrowUpRight, TrendingUp, Calendar, AlertTriangle, CheckCircle, Clock, 
 import { family, walletSummary, transactions, programs, children, providers } from '../data/mockData'
 import { formatCurrency, formatShortDate, daysUntil, getUrgencyLevel } from '../lib/utils'
 import { cn } from '../lib/utils'
+import { todayISO, todayLong } from '../lib/dates'
 import type { PageId } from '../App'
 
 interface WalletPageProps {
@@ -204,7 +205,7 @@ const childWallets: Record<string, typeof walletSummary> = {
       { program: 'larimer', name: 'Larimer County', amount: 150, color: '#b45309', pct: 8 },
       { program: 'cap', name: 'CAP Pilot', amount: 50, color: '#6d28d9', pct: 3 },
     ],
-    lastUpdated: '2025-03-01',
+    lastUpdated: todayISO(),
   },
   c2: {
     totalMonthlyBalance: 800,
@@ -215,7 +216,7 @@ const childWallets: Record<string, typeof walletSummary> = {
       { program: 'larimer', name: 'Larimer County', amount: 150, color: '#b45309', pct: 19 },
       { program: 'cap', name: 'CAP Pilot', amount: 350, color: '#6d28d9', pct: 44 },
     ],
-    lastUpdated: '2025-03-01',
+    lastUpdated: todayISO(),
   },
 }
 
@@ -252,7 +253,7 @@ export function WalletPage({ onNavigate }: WalletPageProps) {
           <p className="text-slate-400 text-sm mt-0.5">{family.county} · Case #{family.caseId}</p>
         </div>
         <div className="text-right hidden sm:block">
-          <div className="text-xs text-slate-400">As of March 1, 2025</div>
+          <div className="text-xs text-slate-400">As of {todayLong()}</div>
         </div>
       </div>
 

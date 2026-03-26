@@ -7,6 +7,7 @@ import {
 import { programs, applications, children } from '../data/mockData'
 import { formatShortDate, daysUntil } from '../lib/utils'
 import { cn } from '../lib/utils'
+import { nextAnnual, fmtLong, currentSchoolYear, nextSchoolYear } from '../lib/dates'
 import type { PageId } from '../App'
 
 // Build document vault once (same logic as ApplicationsPage)
@@ -53,7 +54,7 @@ const programApplyConfig: Record<AppProgram, {
       'Social Security numbers for all household members',
     ],
     processingTime: '10–15 business days',
-    renewalNote: 'Submit by November 1 each year to avoid any gap in coverage.',
+    renewalNote: `Submit by ${fmtLong(nextAnnual(11, 1))} to avoid any gap in coverage.`,
   },
   upk: {
     icon: <GraduationCap className="w-5 h-5" />,
@@ -65,7 +66,7 @@ const programApplyConfig: Record<AppProgram, {
       'Dual language learner or disability documentation (if applicable)',
     ],
     processingTime: '3–5 business days (matching takes up to 2 weeks)',
-    renewalNote: 'Enrollment opens in February each year for the following school year.',
+    renewalNote: `Enrollment for the ${nextSchoolYear()} school year opens in February. Apply by ${fmtLong(nextAnnual(4, 15))}.`,
   },
   larimer: {
     icon: <MapPin className="w-5 h-5" />,
@@ -77,7 +78,7 @@ const programApplyConfig: Record<AppProgram, {
       'Child care provider confirmation',
     ],
     processingTime: '5–7 business days',
-    renewalNote: 'Annual renewal required by January 15.',
+    renewalNote: `Annual renewal required by ${fmtLong(nextAnnual(1, 15))}.`,
   },
   cap: {
     icon: <Rocket className="w-5 h-5" />,
@@ -89,7 +90,7 @@ const programApplyConfig: Record<AppProgram, {
       'Digital wallet consent form',
     ],
     processingTime: 'Enrollment by invitation — contact Gary Community Ventures',
-    renewalNote: 'CAP pilot ends June 30, 2026. No renewal required.',
+    renewalNote: `CAP pilot ends ${fmtLong(nextAnnual(6, 30))}. No renewal required.`,
   },
 }
 
@@ -129,9 +130,9 @@ export function ApplyPage({ onNavigate }: ApplyPageProps) {
   const programOrder: AppProgram[] = ['cccap', 'upk', 'larimer', 'cap']
 
   const upcomingRenewals = [
-    { program: 'cccap' as AppProgram, deadline: '2026-11-01', label: 'CCCAP Renewal' },
-    { program: 'upk' as AppProgram, deadline: '2025-04-15', label: 'UPK 2025–26 Enrollment' },
-    { program: 'larimer' as AppProgram, deadline: '2026-01-15', label: 'Larimer County Renewal' },
+    { program: 'cccap'   as AppProgram, deadline: nextAnnual(11, 1), label: 'CCCAP Renewal' },
+    { program: 'upk'     as AppProgram, deadline: nextAnnual(4, 15), label: `UPK ${currentSchoolYear()} Enrollment` },
+    { program: 'larimer' as AppProgram, deadline: nextAnnual(1, 15), label: 'Larimer County Renewal' },
   ]
 
   if (submitted) {

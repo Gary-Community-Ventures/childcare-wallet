@@ -1,3 +1,10 @@
+import {
+  todayISO, monthStart, monthLabel,
+  nextAnnual, daysAgo, daysFromNow,
+  currentSchoolYear, nextSchoolYear,
+  thisYear, fmtLong,
+} from '../lib/dates'
+
 export const family = {
   name: 'Rivera Family',
   firstName: 'Maria',
@@ -34,6 +41,18 @@ export const children = [
   },
 ]
 
+// ── Date anchors (computed once at page load) ──────────────────────────────
+const cccapRenewalDeadline   = nextAnnual(11, 1)   // next Nov 1
+const cccapCoverageEnd       = nextAnnual(12, 31)  // next Dec 31
+const upkEnrollDeadline      = nextAnnual(4, 15)   // next Apr 15
+const upkKinderTransition    = nextAnnual(8, 1)    // next Aug 1
+const larimarRenewalDeadline = nextAnnual(1, 15)   // next Jan 15
+const larimarCoverageEnd     = nextAnnual(2, 28)   // next Feb 28
+const capPilotEnd            = nextAnnual(6, 30)   // next Jun 30
+const cctcSubmitted          = daysAgo(8)
+const cctcDecisionDeadline   = daysFromNow(21)
+const cccapUpcomingRecon     = nextAnnual(12, 1)   // next Dec 1
+
 export const programs = {
   cccap: {
     id: 'cccap',
@@ -47,8 +66,8 @@ export const programs = {
     status: 'active',
     monthlyBenefit: 1240,
     enrolledDate: '2024-01-15',
-    renewalDate: '2026-12-31',
-    nextRenewalDeadline: '2026-11-01',
+    renewalDate: cccapCoverageEnd,
+    nextRenewalDeadline: cccapRenewalDeadline,
     enrolledChildren: ['c1', 'c2'],
     caseWorker: 'Sandra Nguyen',
     caseWorkerPhone: '(970) 498-6000',
@@ -61,8 +80,8 @@ export const programs = {
       {
         id: 'r1',
         type: 'renewal',
-        message: 'Your CCCAP eligibility expires December 31, 2026. Submit your renewal application by November 1, 2026 to avoid any gap in coverage.',
-        deadline: '2026-11-01',
+        message: `Your CCCAP eligibility expires ${fmtLong(cccapCoverageEnd)}. Submit your renewal application by ${fmtLong(cccapRenewalDeadline)} to avoid any gap in coverage.`,
+        deadline: cccapRenewalDeadline,
         urgent: false,
       }
     ],
@@ -79,10 +98,10 @@ export const programs = {
     status: 'active',
     monthlyBenefit: 800,
     enrolledDate: '2024-08-20',
-    renewalDate: '2025-06-30',
-    nextRenewalDeadline: '2025-04-15',
+    renewalDate: nextAnnual(6, 30),
+    nextRenewalDeadline: upkEnrollDeadline,
     enrolledChildren: ['c1'],
-    schoolYear: '2024-2025',
+    schoolYear: currentSchoolYear(),
     hoursPerWeek: 30,
     baseHours: 15,
     additionalHours: 15,
@@ -92,20 +111,20 @@ export const programs = {
     applicationPath: '/apply',
     renewalPath: '/apply?program=upk&type=renewal',
     matchStatus: 'Matched — Little Stars Learning Center',
-    kindergartenTransitionDate: '2025-08-01',
+    kindergartenTransitionDate: upkKinderTransition,
     reminders: [
       {
         id: 'r2',
         type: 'renewal',
-        message: 'UPK enrollment for the 2025-2026 school year opens in February. Apply by April 15, 2025 to secure Sofia\'s spot.',
-        deadline: '2025-04-15',
+        message: `UPK enrollment for the ${nextSchoolYear()} school year opens in February. Apply by ${fmtLong(upkEnrollDeadline)} to secure Sofia's spot.`,
+        deadline: upkEnrollDeadline,
         urgent: false,
       },
       {
         id: 'r3',
         type: 'transition',
-        message: 'Sofia transitions to kindergarten in August 2025. Connect with your school district by June to plan her transition.',
-        deadline: '2025-06-01',
+        message: `Sofia transitions to kindergarten in August ${thisYear() + (new Date().getMonth() < 7 ? 0 : 1)}. Connect with your school district by June to plan her transition.`,
+        deadline: upkKinderTransition,
         urgent: false,
       }
     ],
@@ -122,8 +141,8 @@ export const programs = {
     status: 'active',
     monthlyBenefit: 300,
     enrolledDate: '2024-03-01',
-    renewalDate: '2026-02-28',
-    nextRenewalDeadline: '2026-01-15',
+    renewalDate: larimarCoverageEnd,
+    nextRenewalDeadline: larimarRenewalDeadline,
     enrolledChildren: ['c1', 'c2'],
     fundingSource: 'Larimer County General Fund + ARPA Reserves',
     maxIncomeFPL: 200,
@@ -136,8 +155,8 @@ export const programs = {
       {
         id: 'r4',
         type: 'renewal',
-        message: 'Larimer County subsidy renews February 28, 2026. Submit renewal documentation by January 15, 2026.',
-        deadline: '2026-01-15',
+        message: `Larimer County subsidy renews ${fmtLong(larimarCoverageEnd)}. Submit renewal documentation by ${fmtLong(larimarRenewalDeadline)}.`,
+        deadline: larimarRenewalDeadline,
         urgent: false,
       }
     ],
@@ -146,7 +165,7 @@ export const programs = {
     id: 'cap',
     name: 'CAP',
     fullName: 'Child Care Affordability Pilot',
-    description: 'County-administered pilot providing additional family-directed childcare funds via digital wallet. Pilot concludes June 30, 2026.',
+    description: `County-administered pilot providing additional family-directed childcare funds via digital wallet. Pilot concludes ${fmtLong(capPilotEnd)}.`,
     color: '#6d28d9',
     lightColor: '#ede9fe',
     gradient: 'from-violet-700 to-purple-500',
@@ -154,18 +173,18 @@ export const programs = {
     status: 'active',
     monthlyBenefit: 400,
     enrolledDate: '2025-01-01',
-    pilotEndDate: '2026-06-30',
+    pilotEndDate: capPilotEnd,
     enrolledChildren: ['c1', 'c2'],
     coordinator: 'Gary Community Ventures',
-    notes: 'Pilot program — additional dollars layered on top of state and county subsidies. Pilot ends June 30, 2026.',
+    notes: `Pilot program — additional dollars layered on top of state and county subsidies. Pilot ends ${fmtLong(capPilotEnd)}.`,
     applicationPath: '/apply',
     pilotInfo: 'This is a Gary Community Ventures pilot. Families in this pilot help shape the future of childcare funding in Colorado. Thank you for participating!',
     reminders: [
       {
         id: 'r5',
         type: 'pilot-end',
-        message: 'The CAP pilot concludes on June 30, 2026. There is no action needed now — Gary Community Ventures will contact you about next steps.',
-        deadline: '2026-06-30',
+        message: `The CAP pilot concludes on ${fmtLong(capPilotEnd)}. There is no action needed now — Gary Community Ventures will contact you about next steps.`,
+        deadline: capPilotEnd,
         urgent: false,
       }
     ],
@@ -174,7 +193,7 @@ export const programs = {
     id: 'cctc',
     name: 'CCTC',
     fullName: 'Colorado Child Care Tax Credit',
-    description: 'State refundable tax credit covering up to 50% of qualifying childcare expenses. Estimated annual refund of ~$2,400 for the Rivera family based on 2024 expenses.',
+    description: 'State refundable tax credit covering up to 50% of qualifying childcare expenses. Estimated annual refund of ~$2,400 for the Rivera family based on recent expenses.',
     color: '#7e22ce',
     lightColor: '#f3e8ff',
     gradient: 'from-purple-700 to-fuchsia-500',
@@ -182,20 +201,20 @@ export const programs = {
     status: 'pending',
     monthlyBenefit: 200,
     estimatedAnnualCredit: 2400,
-    enrolledDate: '2025-03-18',
+    enrolledDate: cctcSubmitted,
     enrolledChildren: [],
-    caseNumber: 'CCTC-2025-0041',
+    caseNumber: `CCTC-${thisYear()}-0041`,
     contactAgency: 'Colorado Department of Revenue',
     contactPhone: '(303) 238-7378',
     contactWebsite: 'tax.colorado.gov',
-    notes: 'Application submitted March 18, 2025. Under review — expected processing time is 15–20 business days.',
+    notes: `Application submitted ${fmtLong(cctcSubmitted)}. Under review — expected processing time is 15–20 business days.`,
     applicationPath: '/apply',
     reminders: [
       {
         id: 'r6',
         type: 'pending',
-        message: 'Your CCTC application (case CCTC-2025-0041) is under review. Expected decision by mid-April 2025.',
-        deadline: '2025-04-15',
+        message: `Your CCTC application (case CCTC-${thisYear()}-0041) is under review. Expected decision by ${fmtLong(cctcDecisionDeadline)}.`,
+        deadline: cctcDecisionDeadline,
         urgent: false,
       }
     ],
@@ -224,9 +243,9 @@ export const providers = [
     acceptingEnrollment: true,
     specialties: ['Dual-language (Spanish/English)', 'STEM curriculum', 'Outdoor learning'],
     monthlyPayments: [
-      { month: 'Mar 2025', amount: 1580, date: '2025-03-01', status: 'paid', programs: ['cccap', 'upk', 'larimer', 'cap'] },
-      { month: 'Feb 2025', amount: 1580, date: '2025-02-01', status: 'paid', programs: ['cccap', 'upk', 'larimer', 'cap'] },
-      { month: 'Jan 2025', amount: 1580, date: '2025-01-01', status: 'paid', programs: ['cccap', 'upk', 'larimer', 'cap'] },
+      { month: monthLabel(-1), amount: 1580, date: monthStart(-1), status: 'paid', programs: ['cccap', 'upk', 'larimer', 'cap'] },
+      { month: monthLabel(-2), amount: 1580, date: monthStart(-2), status: 'paid', programs: ['cccap', 'upk', 'larimer', 'cap'] },
+      { month: monthLabel(-3), amount: 1580, date: monthStart(-3), status: 'paid', programs: ['cccap', 'upk', 'larimer', 'cap'] },
     ],
   },
   {
@@ -250,9 +269,9 @@ export const providers = [
     acceptingEnrollment: false,
     specialties: ['Bilingual care', 'Nature-based activities', 'Flexible scheduling'],
     monthlyPayments: [
-      { month: 'Mar 2025', amount: 300, date: '2025-03-01', status: 'paid', programs: ['cccap'] },
-      { month: 'Feb 2025', amount: 300, date: '2025-02-01', status: 'paid', programs: ['cccap'] },
-      { month: 'Jan 2025', amount: 500, date: '2025-01-01', status: 'paid', programs: ['cccap'] },
+      { month: monthLabel(-1), amount: 300, date: monthStart(-1), status: 'paid', programs: ['cccap'] },
+      { month: monthLabel(-2), amount: 300, date: monthStart(-2), status: 'paid', programs: ['cccap'] },
+      { month: monthLabel(-3), amount: 500, date: monthStart(-3), status: 'paid', programs: ['cccap'] },
     ],
   },
   {
@@ -275,16 +294,16 @@ export const providers = [
     currentEnrollment: 1,
     acceptingEnrollment: false,
     specialties: ['Family member', 'Spanish-speaking', 'Flexible hours', 'Trusted relationship'],
-    note: 'Registered FFN provider through CAP pilot. Background check completed January 2025.',
+    note: `Registered FFN provider through CAP pilot. Background check completed ${fmtLong(daysAgo(60))}.`,
     monthlyPayments: [
-      { month: 'Mar 2025', amount: 560, date: '2025-03-01', status: 'paid', programs: ['cap', 'larimer'] },
-      { month: 'Feb 2025', amount: 560, date: '2025-02-01', status: 'paid', programs: ['cap', 'larimer'] },
-      { month: 'Jan 2025', amount: 560, date: '2025-01-01', status: 'paid', programs: ['cap', 'larimer'] },
+      { month: monthLabel(-1), amount: 560, date: monthStart(-1), status: 'paid', programs: ['cap', 'larimer'] },
+      { month: monthLabel(-2), amount: 560, date: monthStart(-2), status: 'paid', programs: ['cap', 'larimer'] },
+      { month: monthLabel(-3), amount: 560, date: monthStart(-3), status: 'paid', programs: ['cap', 'larimer'] },
     ],
   },
 ]
 
-// breakdown shows how each payment was funded across programs
+// ── Payment breakdowns ────────────────────────────────────────────────────
 const sunflowerMiguelBreakdown = [
   { program: 'cccap', name: 'CCCAP', amount: 300, color: '#0369a1', lightColor: '#e0f2fe' },
 ]
@@ -292,30 +311,30 @@ const sunflowerSofiaBreakdown = [
   { program: 'cccap', name: 'CCCAP', amount: 200, color: '#0369a1', lightColor: '#e0f2fe' },
 ]
 const littleStarsBreakdown = [
-  { program: 'cccap', name: 'CCCAP', amount: 940, color: '#0369a1', lightColor: '#e0f2fe' },
-  { program: 'upk', name: 'UPK Colorado', amount: 440, color: '#216737', lightColor: '#dcfce7' },
-  { program: 'larimer', name: 'Larimer County', amount: 150, color: '#b45309', lightColor: '#fef3c7' },
-  { program: 'cap', name: 'CAP', amount: 50, color: '#6d28d9', lightColor: '#ede9fe' },
+  { program: 'cccap',   name: 'CCCAP',          amount: 940, color: '#0369a1', lightColor: '#e0f2fe' },
+  { program: 'upk',    name: 'UPK Colorado',    amount: 440, color: '#216737', lightColor: '#dcfce7' },
+  { program: 'larimer',name: 'Larimer County',  amount: 150, color: '#b45309', lightColor: '#fef3c7' },
+  { program: 'cap',    name: 'CAP',             amount:  50, color: '#6d28d9', lightColor: '#ede9fe' },
 ]
 const abuelaBreakdown = [
   { program: 'larimer', name: 'Larimer County', amount: 150, color: '#b45309', lightColor: '#fef3c7' },
-  { program: 'cap', name: 'CAP', amount: 410, color: '#6d28d9', lightColor: '#ede9fe' },
+  { program: 'cap',    name: 'CAP',             amount: 410, color: '#6d28d9', lightColor: '#ede9fe' },
 ]
 
 export const transactions = [
-  { id: 't1', date: '2025-03-01', provider: 'Little Stars Learning Center', providerId: 'p1', amount: 1580, program: 'Mixed', programs: ['cccap', 'upk', 'larimer', 'cap'], status: 'completed', type: 'payment', children: ['Sofia'], breakdown: littleStarsBreakdown },
-  { id: 't2', date: '2025-03-01', provider: 'Abuela Carmen (FFN)', providerId: 'p3', amount: 560, program: 'CAP + Larimer', programs: ['cap', 'larimer'], status: 'completed', type: 'payment', children: ['Miguel'], breakdown: abuelaBreakdown },
-  { id: 't3', date: '2025-02-01', provider: 'Little Stars Learning Center', providerId: 'p1', amount: 1580, program: 'Mixed', programs: ['cccap', 'upk', 'larimer', 'cap'], status: 'completed', type: 'payment', children: ['Sofia'], breakdown: littleStarsBreakdown },
-  { id: 't4', date: '2025-02-01', provider: 'Abuela Carmen (FFN)', providerId: 'p3', amount: 560, program: 'CAP + Larimer', programs: ['cap', 'larimer'], status: 'completed', type: 'payment', children: ['Miguel'], breakdown: abuelaBreakdown },
-  { id: 't5', date: '2025-01-01', provider: 'Little Stars Learning Center', providerId: 'p1', amount: 1580, program: 'Mixed', programs: ['cccap', 'upk', 'larimer', 'cap'], status: 'completed', type: 'payment', children: ['Sofia'], breakdown: littleStarsBreakdown },
-  { id: 't6', date: '2025-01-01', provider: 'Abuela Carmen (FFN)', providerId: 'p3', amount: 560, program: 'CAP + Larimer', programs: ['cap', 'larimer'], status: 'completed', type: 'payment', children: ['Miguel'], breakdown: abuelaBreakdown },
-  { id: 't7', date: '2024-12-01', provider: 'Little Stars Learning Center', providerId: 'p1', amount: 1580, program: 'Mixed', programs: ['cccap', 'upk', 'larimer', 'cap'], status: 'completed', type: 'payment', children: ['Sofia'], breakdown: littleStarsBreakdown },
-  { id: 't8', date: '2024-12-01', provider: 'Abuela Carmen (FFN)', providerId: 'p3', amount: 560, program: 'CAP + Larimer', programs: ['cap', 'larimer'], status: 'completed', type: 'payment', children: ['Miguel'], breakdown: abuelaBreakdown },
-  { id: 't9', date: '2025-03-01', provider: 'Sunflower Home Daycare', providerId: 'p2', amount: 300, program: 'CCCAP', programs: ['cccap'], status: 'completed', type: 'payment', children: ['Miguel'], breakdown: sunflowerMiguelBreakdown },
-  { id: 't10', date: '2025-02-01', provider: 'Sunflower Home Daycare', providerId: 'p2', amount: 300, program: 'CCCAP', programs: ['cccap'], status: 'completed', type: 'payment', children: ['Miguel'], breakdown: sunflowerMiguelBreakdown },
-  { id: 't11', date: '2025-01-01', provider: 'Sunflower Home Daycare', providerId: 'p2', amount: 300, program: 'CCCAP', programs: ['cccap'], status: 'completed', type: 'payment', children: ['Miguel'], breakdown: sunflowerMiguelBreakdown },
-  { id: 't12', date: '2025-01-01', provider: 'Sunflower Home Daycare', providerId: 'p2', amount: 200, program: 'CCCAP', programs: ['cccap'], status: 'completed', type: 'payment', children: ['Sofia'], breakdown: sunflowerSofiaBreakdown },
-  { id: 't13', date: '2024-12-01', provider: 'Sunflower Home Daycare', providerId: 'p2', amount: 300, program: 'CCCAP', programs: ['cccap'], status: 'completed', type: 'payment', children: ['Miguel'], breakdown: sunflowerMiguelBreakdown },
+  { id: 't1',  date: monthStart(-1), provider: 'Little Stars Learning Center', providerId: 'p1', amount: 1580, program: 'Mixed',        programs: ['cccap','upk','larimer','cap'], status: 'completed', type: 'payment', children: ['Sofia'],  breakdown: littleStarsBreakdown },
+  { id: 't2',  date: monthStart(-1), provider: 'Abuela Carmen (FFN)',           providerId: 'p3', amount:  560, program: 'CAP + Larimer', programs: ['cap','larimer'],              status: 'completed', type: 'payment', children: ['Miguel'], breakdown: abuelaBreakdown },
+  { id: 't3',  date: monthStart(-2), provider: 'Little Stars Learning Center', providerId: 'p1', amount: 1580, program: 'Mixed',        programs: ['cccap','upk','larimer','cap'], status: 'completed', type: 'payment', children: ['Sofia'],  breakdown: littleStarsBreakdown },
+  { id: 't4',  date: monthStart(-2), provider: 'Abuela Carmen (FFN)',           providerId: 'p3', amount:  560, program: 'CAP + Larimer', programs: ['cap','larimer'],              status: 'completed', type: 'payment', children: ['Miguel'], breakdown: abuelaBreakdown },
+  { id: 't5',  date: monthStart(-3), provider: 'Little Stars Learning Center', providerId: 'p1', amount: 1580, program: 'Mixed',        programs: ['cccap','upk','larimer','cap'], status: 'completed', type: 'payment', children: ['Sofia'],  breakdown: littleStarsBreakdown },
+  { id: 't6',  date: monthStart(-3), provider: 'Abuela Carmen (FFN)',           providerId: 'p3', amount:  560, program: 'CAP + Larimer', programs: ['cap','larimer'],              status: 'completed', type: 'payment', children: ['Miguel'], breakdown: abuelaBreakdown },
+  { id: 't7',  date: monthStart(-4), provider: 'Little Stars Learning Center', providerId: 'p1', amount: 1580, program: 'Mixed',        programs: ['cccap','upk','larimer','cap'], status: 'completed', type: 'payment', children: ['Sofia'],  breakdown: littleStarsBreakdown },
+  { id: 't8',  date: monthStart(-4), provider: 'Abuela Carmen (FFN)',           providerId: 'p3', amount:  560, program: 'CAP + Larimer', programs: ['cap','larimer'],              status: 'completed', type: 'payment', children: ['Miguel'], breakdown: abuelaBreakdown },
+  { id: 't9',  date: monthStart(-1), provider: 'Sunflower Home Daycare',        providerId: 'p2', amount:  300, program: 'CCCAP',        programs: ['cccap'],                       status: 'completed', type: 'payment', children: ['Miguel'], breakdown: sunflowerMiguelBreakdown },
+  { id: 't10', date: monthStart(-2), provider: 'Sunflower Home Daycare',        providerId: 'p2', amount:  300, program: 'CCCAP',        programs: ['cccap'],                       status: 'completed', type: 'payment', children: ['Miguel'], breakdown: sunflowerMiguelBreakdown },
+  { id: 't11', date: monthStart(-3), provider: 'Sunflower Home Daycare',        providerId: 'p2', amount:  300, program: 'CCCAP',        programs: ['cccap'],                       status: 'completed', type: 'payment', children: ['Miguel'], breakdown: sunflowerMiguelBreakdown },
+  { id: 't12', date: monthStart(-3), provider: 'Sunflower Home Daycare',        providerId: 'p2', amount:  200, program: 'CCCAP',        programs: ['cccap'],                       status: 'completed', type: 'payment', children: ['Sofia'],  breakdown: sunflowerSofiaBreakdown },
+  { id: 't13', date: monthStart(-4), provider: 'Sunflower Home Daycare',        providerId: 'p2', amount:  300, program: 'CCCAP',        programs: ['cccap'],                       status: 'completed', type: 'payment', children: ['Miguel'], breakdown: sunflowerMiguelBreakdown },
 ]
 
 export const applications = [
@@ -385,7 +404,7 @@ export const applications = [
     approvedDate: '2024-01-01',
     caseNumber: 'CCCAP-2024-00102',
     worker: 'Sandra Nguyen',
-    notes: 'Annual renewal. Income verified, eligibility confirmed through December 2026.',
+    notes: `Annual renewal. Income verified, eligibility confirmed through ${fmtLong(cccapCoverageEnd)}.`,
     documents: ['Updated income documentation', 'Updated work schedule'],
     reconsiderationDeadline: null,
   },
@@ -394,15 +413,15 @@ export const applications = [
     program: 'cctc',
     programName: 'Colorado Child Care Tax Credit',
     type: 'initial',
-    submittedDate: '2025-03-18',
+    submittedDate: cctcSubmitted,
     status: 'pending',
     approvedDate: null,
-    caseNumber: 'CCTC-2025-0041',
+    caseNumber: `CCTC-${thisYear()}-0041`,
     worker: 'Colorado Department of Revenue',
-    notes: 'Application submitted online. Under review — expected processing time is 15–20 business days. You will receive a notice by mail and email once a determination is made.',
+    notes: `Application submitted online ${fmtLong(cctcSubmitted)}. Under review — expected processing time is 15–20 business days. You will receive a notice by mail and email once a determination is made.`,
     documents: [
-      'Federal tax return (2024)',
-      'Childcare expense receipts (Jan–Mar 2025)',
+      `Federal tax return (${thisYear() - 1})`,
+      `Childcare expense receipts (${monthLabel(-3)}–${monthLabel(-1)})`,
       'Child birth certificates',
       'Proof of Colorado residency',
       'CCCAP enrollment confirmation',
@@ -412,17 +431,17 @@ export const applications = [
   {
     id: 'app6',
     program: 'cccap',
-    programName: 'CCCAP — 2025 Renewal',
+    programName: `CCCAP — ${thisYear() + 1} Renewal`,
     type: 'renewal',
     submittedDate: null,
     status: 'upcoming',
     approvedDate: null,
     caseNumber: null,
     worker: 'Sandra Nguyen',
-    notes: 'Renewal application for coverage year 2027. Must be submitted by November 1, 2026.',
+    notes: `Renewal application for coverage year ${thisYear() + 2}. Must be submitted by ${fmtLong(cccapRenewalDeadline)}.`,
     documents: [],
-    applicationDeadline: '2026-11-01',
-    reconsiderationDeadline: '2026-12-01',
+    applicationDeadline: cccapRenewalDeadline,
+    reconsiderationDeadline: cccapUpcomingRecon,
     reconsiderationInfo: 'If your renewal is denied, you have 30 days to request reconsideration. Contact Sandra Nguyen at (970) 498-6000.',
   },
 ]
@@ -432,10 +451,10 @@ export const walletSummary = {
   available: 2740,
   ytdSpent: 8520,
   breakdown: [
-    { program: 'cccap', name: 'CCCAP', amount: 1240, color: '#0369a1', pct: 45 },
-    { program: 'upk', name: 'UPK Colorado', amount: 800, color: '#216737', pct: 29 },
-    { program: 'larimer', name: 'Larimer County', amount: 300, color: '#b45309', pct: 11 },
-    { program: 'cap', name: 'CAP Pilot', amount: 400, color: '#6d28d9', pct: 15 },
+    { program: 'cccap',   name: 'CCCAP',          amount: 1240, color: '#0369a1', pct: 45 },
+    { program: 'upk',    name: 'UPK Colorado',    amount:  800, color: '#216737', pct: 29 },
+    { program: 'larimer',name: 'Larimer County',  amount:  300, color: '#b45309', pct: 11 },
+    { program: 'cap',    name: 'CAP Pilot',       amount:  400, color: '#6d28d9', pct: 15 },
   ],
-  lastUpdated: '2025-03-01',
+  lastUpdated: todayISO(),
 }
