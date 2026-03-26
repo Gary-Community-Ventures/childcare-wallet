@@ -36,7 +36,7 @@ const docVault = new Map<string, DocVaultEntry>()
 applications.forEach(app => {
   if (!app.documents || app.documents.length === 0) return
   const programInfo = programs[app.program as keyof typeof programs]
-  const enrolledIds = programInfo?.enrolledChildren ?? []
+  const enrolledIds: string[] = programInfo?.enrolledChildren ?? []
   // If no enrolled children listed (e.g. family-level credit), treat as all children
   const childNames = enrolledIds.length > 0
     ? children.filter(c => enrolledIds.includes(c.id)).map(c => c.name.split(' ')[0])
