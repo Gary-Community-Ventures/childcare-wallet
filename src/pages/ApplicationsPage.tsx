@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import {
   CheckCircle, Clock, AlertTriangle, ChevronRight,
-  FileText, Calendar, RotateCcw, PlusCircle, Info
+  FileText, Calendar, RotateCcw, PlusCircle, Info, FolderOpen, Copy
 } from 'lucide-react'
-import { applications, programs } from '../data/mockData'
+import { applications, programs, children } from '../data/mockData'
 import { formatShortDate, daysUntil } from '../lib/utils'
 import { cn } from '../lib/utils'
 import type { PageId } from '../App'
@@ -29,9 +29,41 @@ const programColors: Record<string, { bg: string; text: string; border: string }
   cctc: { bg: '#f3e8ff', text: '#7e22ce', border: '#e9d5ff' },
 }
 
+// Build the document vault: aggregate all docs across applications, tagging each by child
+type DocVaultEntry = { children: string[]; programs: { id: string; name: string }[] }
+const docVault = new Map<string, DocVaultEntry>()
+
+applications.forEach(app => {
+  if (!app.documents || app.documents.length === 0) return
+  const programInfo = programs[app.program as keyof typeof programs]
+  const enrolledIds = programInfo?.enrolledChildren ?? []
+  // If no enrolled children listed (e.g. family-level credit), treat as all children
+  const childNames = enrolledIds.length > 0
+    ? children.filter(c => enrolledIds.includes(c.id)).map(c => c.name.split(' ')[0])
+    : children.map(c => c.name.split(' ')[0])
+
+  app.documents.forEach(doc => {
+    if (!docVault.has(doc)) {
+      docVault.set(doc, { children: [], programs: [] })
+    }
+    const entry = docVault.get(doc)!
+    childNames.forEach(name => {
+      if (!entry.children.includes(name)) entry.children.push(name)
+    })
+    if (!entry.programs.find(p => p.id === app.program)) {
+      entry.programs.push({ id: app.program, name: app.programName })
+    }
+  })
+})
+
+const childNames = children.map(c => c.name.split(' ')[0])
+type DocFilter = 'all' | string
+
 export function ApplicationsPage({ onNavigate }: ApplicationsPageProps) {
   const [filter, setFilter] = useState<AppFilter>('all')
   const [expandedApp, setExpandedApp] = useState<string | null>(null)
+  const [docFilter, setDocFilter] = useState<DocFilter>('all')
+  const [copiedDoc, setCopiedDoc] = useState<string | null>(null)
 
   const filtered = applications.filter(app => {
     if (filter === 'all') return true
@@ -250,6 +282,124 @@ export function ApplicationsPage({ onNavigate }: ApplicationsPageProps) {
         >
           <PlusCircle className="w-4 h-4" /> Go to Applications Portal
         </button>
+      </div>
+
+      {/* Document Vault */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-violet-100 flex items-center justify-center">
+            <FolderOpen className="w-5 h-5 text-violet-600" />
+          </div>
+          <div>
+            <h2 className="font-display font-bold text-slate-900 text-lg leading-tight">Document Vault</h2>
+            <p className="text-slate-500 text-xs">Reuse documents already submitted — no need to re-upload for new applications</p>
+          </div>
+        </div>
+
+        {/* Child filter tabs */}
+        <div className="flex gap-2 flex-wrap">
+          {(['all', ...childNames] as DocFilter[]).map(f => (
+            <button
+              key={f}
+              onClick={() => setDocFilter(f)}
+              className={cn(
+                'px-4 py-1.5 rounded-full text-sm font-medium transition-all capitalize',
+                docFilter === f
+                  ? 'bg-violet-600 text-white shadow-sm'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+              )}
+            >
+              {f === 'all' ? `All Children (${docVault.size})` : (
+                <>
+                  {children.find(c => c.name.split(' ')[0] === f)?.avatar} {f}&nbsp;
+                  ({Array.from(docVault.values()).filter(e => e.children.includes(f as string)).length})
+                </>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Document grid */}
+        <div className="grid gap-3 sm:grid-cols-2">
+          {Array.from(docVault.entries())
+            .filter(([, entry]) => docFilter === 'all' || entry.children.includes(docFilter as string))
+            .map(([docName, entry]) => {
+              const isCopied = copiedDoc === docName
+              return (
+                <div
+                  key={docName}
+                  className="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 py-3.5 flex items-start gap-3 group"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <FileText className="w-4 h-4 text-violet-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-slate-900 text-sm leading-snug">{docName}</div>
+                    {/* Which children */}
+                    <div className="flex flex-wrap gap-1 mt-1.5">
+                      {entry.children.map(childName => {
+                        const child = children.find(c => c.name.split(' ')[0] === childName)
+                        return (
+                          <span
+                            key={childName}
+                            className="inline-flex items-center gap-0.5 text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full"
+                          >
+                            {child?.avatar} {childName}
+                          </span>
+                        )
+                      })}
+                    </div>
+                    {/* Which programs used it */}
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {entry.programs.map(prog => (
+                        <span
+                          key={prog.id}
+                          className="text-xs px-2 py-0.5 rounded-full font-medium"
+                          style={{
+                            background: programColors[prog.id]?.bg || '#f1f5f9',
+                            color: programColors[prog.id]?.text || '#64748b',
+                          }}
+                        >
+                          {prog.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Reuse action */}
+                  <button
+                    onClick={() => {
+                      setCopiedDoc(docName)
+                      setTimeout(() => setCopiedDoc(null), 2000)
+                    }}
+                    title="Mark for reuse in next application"
+                    className={cn(
+                      'flex-shrink-0 flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all',
+                      isCopied
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-violet-50 text-violet-700 hover:bg-violet-100'
+                    )}
+                  >
+                    {isCopied ? (
+                      <><CheckCircle className="w-3.5 h-3.5" /> Added</>
+                    ) : (
+                      <><Copy className="w-3.5 h-3.5" /> Reuse</>
+                    )}
+                  </button>
+                </div>
+              )
+            })}
+        </div>
+
+        {/* Empty state */}
+        {Array.from(docVault.entries()).filter(([, e]) => docFilter === 'all' || e.children.includes(docFilter as string)).length === 0 && (
+          <div className="text-center py-8 text-slate-400 text-sm">
+            No documents found for this filter.
+          </div>
+        )}
+
+        <p className="text-xs text-slate-400 text-center pt-1">
+          Documents are securely stored from previous submissions. Click <strong>Reuse</strong> to pre-fill your next application.
+        </p>
       </div>
     </div>
   )
