@@ -2,7 +2,7 @@ import { useState } from 'react'
 import {
   CheckCircle, Clock, AlertTriangle, ChevronRight,
   Calendar, User, Phone, MapPin, BookOpen,
-  Star, Rocket, GraduationCap, Building2, ArrowUpRight
+  Star, Rocket, GraduationCap, Building2, ArrowUpRight, DollarSign
 } from 'lucide-react'
 import { programs, children, transactions } from '../data/mockData'
 import { formatCurrency, formatShortDate, daysUntil, getUrgencyLevel } from '../lib/utils'
@@ -13,13 +13,14 @@ interface ProgramsPageProps {
   onNavigate: (page: PageId) => void
 }
 
-type ProgramId = 'cccap' | 'upk' | 'larimer' | 'cap'
+type ProgramId = 'cccap' | 'upk' | 'larimer' | 'cap' | 'cctc'
 
 const programList: { id: ProgramId; icon: React.ReactNode; shortDesc: string }[] = [
   { id: 'cccap', icon: <Building2 className="w-5 h-5" />, shortDesc: 'State childcare subsidy' },
   { id: 'upk', icon: <GraduationCap className="w-5 h-5" />, shortDesc: 'Universal preschool' },
   { id: 'larimer', icon: <MapPin className="w-5 h-5" />, shortDesc: 'County supplement' },
   { id: 'cap', icon: <Rocket className="w-5 h-5" />, shortDesc: 'Pilot wallet funds' },
+  { id: 'cctc', icon: <DollarSign className="w-5 h-5" />, shortDesc: 'State tax credit' },
 ]
 
 function StatusBadge({ status }: { status: string }) {
@@ -79,12 +80,14 @@ export function ProgramsPage({ onNavigate }: ProgramsPageProps) {
     upk: '#dcfce7',
     larimer: '#fef9c3',
     cap: '#ede9fe',
+    cctc: '#f3e8ff',
   }
   const accentColorMap: Record<ProgramId, string> = {
     cccap: '#0369a1',
     upk: '#166534',
     larimer: '#92400e',
     cap: '#5b21b6',
+    cctc: '#7e22ce',
   }
   // Keep the darker gradient only for the selected detail header, but make it softer
   const gradientMap: Record<ProgramId, string> = {
@@ -92,6 +95,7 @@ export function ProgramsPage({ onNavigate }: ProgramsPageProps) {
     upk: 'linear-gradient(135deg, #16a34a, #4ade80)',
     larimer: 'linear-gradient(135deg, #b45309, #fbbf24)',
     cap: 'linear-gradient(135deg, #7c3aed, #c4b5fd)',
+    cctc: 'linear-gradient(135deg, #7e22ce, #d946ef)',
   }
 
   return (
@@ -102,7 +106,7 @@ export function ProgramsPage({ onNavigate }: ProgramsPageProps) {
       </div>
 
       {/* Program selector */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         {programList.map(({ id, icon, shortDesc }) => {
           const p = programs[id]
           const isActive = activeProgram === id
@@ -126,9 +130,18 @@ export function ProgramsPage({ onNavigate }: ProgramsPageProps) {
               </div>
               <div className="font-semibold text-sm text-slate-800">{p.name}</div>
               <div className="text-xs mt-0.5 text-slate-500">{shortDesc}</div>
-              <div className="text-lg font-bold mt-2 text-slate-800">
-                {formatCurrency(p.monthlyBenefit)}<span className="text-xs font-normal text-slate-400">/mo</span>
-              </div>
+              {id === 'cctc' ? (
+                <div className="mt-2">
+                  <div className="text-lg font-bold text-slate-800">
+                    {formatCurrency((p as any).estimatedAnnualCredit)}<span className="text-xs font-normal text-slate-400">/yr est.</span>
+                  </div>
+                  <span className="text-xs text-amber-600 font-medium bg-amber-50 px-1.5 py-0.5 rounded-full">Pending</span>
+                </div>
+              ) : (
+                <div className="text-lg font-bold mt-2 text-slate-800">
+                  {formatCurrency(p.monthlyBenefit)}<span className="text-xs font-normal text-slate-400">/mo</span>
+                </div>
+              )}
             </button>
           )
         })}
@@ -150,24 +163,43 @@ export function ProgramsPage({ onNavigate }: ProgramsPageProps) {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
-              <div className="glass rounded-xl p-3">
-                <div className="text-white/60 text-xs">Monthly Benefit</div>
-                <div className="text-white font-bold text-xl">{formatCurrency(prog.monthlyBenefit)}</div>
-              </div>
-              <div className="glass rounded-xl p-3">
-                <div className="text-white/60 text-xs">Enrolled Since</div>
-                <div className="text-white font-semibold text-sm">{formatShortDate(prog.enrolledDate)}</div>
-              </div>
-              {activeProgram !== 'cap' ? (
-                <div className="glass rounded-xl p-3">
-                  <div className="text-white/60 text-xs">Renews</div>
-                  <div className="text-white font-semibold text-sm">{formatShortDate((prog as any).renewalDate)}</div>
-                </div>
+              {activeProgram === 'cctc' ? (
+                <>
+                  <div className="glass rounded-xl p-3">
+                    <div className="text-white/60 text-xs">Est. Annual Credit</div>
+                    <div className="text-white font-bold text-xl">{formatCurrency((prog as any).estimatedAnnualCredit)}</div>
+                  </div>
+                  <div className="glass rounded-xl p-3">
+                    <div className="text-white/60 text-xs">Submitted</div>
+                    <div className="text-white font-semibold text-sm">{formatShortDate(prog.enrolledDate)}</div>
+                  </div>
+                  <div className="glass rounded-xl p-3">
+                    <div className="text-white/60 text-xs">Case Number</div>
+                    <div className="text-white font-semibold text-sm">{(prog as any).caseNumber}</div>
+                  </div>
+                </>
               ) : (
-                <div className="glass rounded-xl p-3 border border-yellow-300/30">
-                  <div className="text-yellow-200/80 text-xs">⚠️ Pilot Ends</div>
-                  <div className="text-white font-semibold text-sm">{formatShortDate((prog as any).pilotEndDate)}</div>
-                </div>
+                <>
+                  <div className="glass rounded-xl p-3">
+                    <div className="text-white/60 text-xs">Monthly Benefit</div>
+                    <div className="text-white font-bold text-xl">{formatCurrency(prog.monthlyBenefit)}</div>
+                  </div>
+                  <div className="glass rounded-xl p-3">
+                    <div className="text-white/60 text-xs">Enrolled Since</div>
+                    <div className="text-white font-semibold text-sm">{formatShortDate(prog.enrolledDate)}</div>
+                  </div>
+                  {activeProgram !== 'cap' ? (
+                    <div className="glass rounded-xl p-3">
+                      <div className="text-white/60 text-xs">Renews</div>
+                      <div className="text-white font-semibold text-sm">{formatShortDate((prog as any).renewalDate)}</div>
+                    </div>
+                  ) : (
+                    <div className="glass rounded-xl p-3 border border-yellow-300/30">
+                      <div className="text-yellow-200/80 text-xs">⚠️ Pilot Ends</div>
+                      <div className="text-white font-semibold text-sm">{formatShortDate((prog as any).pilotEndDate)}</div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -175,12 +207,33 @@ export function ProgramsPage({ onNavigate }: ProgramsPageProps) {
 
         <div className="p-6 space-y-6">
           {/* Renewal alert */}
-          {activeProgram !== 'cap' && (prog as any).nextRenewalDeadline && (
+          {activeProgram !== 'cap' && activeProgram !== 'cctc' && (prog as any).nextRenewalDeadline && (
             <RenewalAlert
               deadline={(prog as any).nextRenewalDeadline}
               programId={activeProgram}
               onNavigate={onNavigate}
             />
+          )}
+
+          {/* CCTC pending notice */}
+          {activeProgram === 'cctc' && (
+            <div className="rounded-xl p-4 bg-purple-50 border border-purple-200">
+              <div className="flex items-start gap-3">
+                <Clock className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-semibold text-purple-900 text-sm">Application Under Review</div>
+                  <p className="text-purple-700 text-sm mt-1">{(prog as any).notes}</p>
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    <button
+                      onClick={() => onNavigate('applications')}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-purple-700 bg-purple-100 hover:bg-purple-200 px-3 py-1.5 rounded-full transition-colors"
+                    >
+                      View Application Status <ArrowUpRight className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
 
           {/* CAP pilot notice */}
@@ -282,6 +335,17 @@ export function ProgramsPage({ onNavigate }: ProgramsPageProps) {
               </h3>
               <div className="text-slate-700 text-sm">{(programs.larimer as any).contactOffice}</div>
               <div className="text-slate-500 text-sm">{(programs.larimer as any).contactPhone}</div>
+            </div>
+          )}
+
+          {activeProgram === 'cctc' && (
+            <div className="rounded-xl bg-slate-50 border border-slate-200 p-4">
+              <h3 className="font-semibold text-slate-900 text-sm mb-2 flex items-center gap-2">
+                <Phone className="w-4 h-4 text-slate-400" /> Contact Agency
+              </h3>
+              <div className="text-slate-700 text-sm font-medium">{(programs.cctc as any).contactAgency}</div>
+              <div className="text-slate-500 text-sm">{(programs.cctc as any).contactPhone}</div>
+              <div className="text-slate-500 text-sm">{(programs.cctc as any).contactWebsite}</div>
             </div>
           )}
 

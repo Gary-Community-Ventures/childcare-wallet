@@ -230,13 +230,23 @@ export function WalletPage({ onNavigate }: WalletPageProps) {
               <span className="font-semibold text-sky-700">CCCAP</span>, you are also likely eligible for the{' '}
               <span className="font-semibold text-violet-700">Colorado Child Care Tax Credit (CCTC)</span> — which can refund up to 50% of annual care expenses.
             </p>
-            <button
-              onClick={() => onNavigate('apply')}
-              className="inline-flex items-center gap-1.5 mt-2.5 text-sm font-semibold text-violet-700 hover:text-violet-900 transition-colors group"
-            >
-              Complete the application
-              <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </button>
+            <div className="flex items-center gap-3 mt-2.5 flex-wrap">
+              <button
+                onClick={() => onNavigate('applications')}
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-violet-700 hover:text-violet-900 transition-colors group"
+              >
+                Track application status
+                <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              </button>
+              <span className="text-violet-300 text-xs">·</span>
+              <button
+                onClick={() => onNavigate('programs')}
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-violet-500 hover:text-violet-800 transition-colors group"
+              >
+                View program details
+                <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              </button>
+            </div>
           </div>
           <button
             onClick={() => setEligibilityBannerDismissed(true)}

@@ -170,6 +170,36 @@ export const programs = {
       }
     ],
   },
+  cctc: {
+    id: 'cctc',
+    name: 'CCTC',
+    fullName: 'Colorado Child Care Tax Credit',
+    description: 'State refundable tax credit covering up to 50% of qualifying childcare expenses. Estimated annual refund of ~$2,400 for the Rivera family based on 2024 expenses.',
+    color: '#7e22ce',
+    lightColor: '#f3e8ff',
+    gradient: 'from-purple-700 to-fuchsia-500',
+    icon: '💰',
+    status: 'pending',
+    monthlyBenefit: 200,
+    estimatedAnnualCredit: 2400,
+    enrolledDate: '2025-03-18',
+    enrolledChildren: [],
+    caseNumber: 'CCTC-2025-0041',
+    contactAgency: 'Colorado Department of Revenue',
+    contactPhone: '(303) 238-7378',
+    contactWebsite: 'tax.colorado.gov',
+    notes: 'Application submitted March 18, 2025. Under review — expected processing time is 15–20 business days.',
+    applicationPath: '/apply',
+    reminders: [
+      {
+        id: 'r6',
+        type: 'pending',
+        message: 'Your CCTC application (case CCTC-2025-0041) is under review. Expected decision by mid-April 2025.',
+        deadline: '2025-04-15',
+        urgent: false,
+      }
+    ],
+  },
 }
 
 export const providers = [
