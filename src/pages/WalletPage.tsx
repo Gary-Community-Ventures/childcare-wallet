@@ -6,7 +6,7 @@ import { cn } from '../lib/utils'
 import type { PageId } from '../App'
 
 interface WalletPageProps {
-  onNavigate: (page: PageId) => void
+  onNavigate: (page: PageId, program?: string) => void
 }
 
 function PayModal({ onClose }: { onClose: () => void }) {
@@ -240,7 +240,7 @@ export function WalletPage({ onNavigate }: WalletPageProps) {
               </button>
               <span className="text-violet-300 text-xs">·</span>
               <button
-                onClick={() => onNavigate('programs')}
+                onClick={() => onNavigate('programs', 'cctc')}
                 className="inline-flex items-center gap-1.5 text-sm font-semibold text-violet-500 hover:text-violet-800 transition-colors group"
               >
                 View program details

@@ -11,22 +11,28 @@ export type PageId = 'wallet' | 'programs' | 'applications' | 'providers' | 'app
 
 export default function App() {
   const [activePage, setActivePage] = useState<PageId>('wallet')
+  const [programFocus, setProgramFocus] = useState<string | null>(null)
+
+  const handleNavigate = (page: PageId, program?: string) => {
+    setActivePage(page)
+    setProgramFocus(program ?? null)
+  }
 
   const renderPage = () => {
     switch (activePage) {
-      case 'wallet': return <WalletPage onNavigate={setActivePage} />
-      case 'programs': return <ProgramsPage onNavigate={setActivePage} />
-      case 'applications': return <ApplicationsPage onNavigate={setActivePage} />
+      case 'wallet': return <WalletPage onNavigate={handleNavigate} />
+      case 'programs': return <ProgramsPage onNavigate={handleNavigate} initialProgram={programFocus ?? undefined} />
+      case 'applications': return <ApplicationsPage onNavigate={handleNavigate} />
       case 'providers': return <ProvidersPage />
-      case 'apply': return <ApplyPage onNavigate={setActivePage} />
-      default: return <WalletPage onNavigate={setActivePage} />
+      case 'apply': return <ApplyPage onNavigate={handleNavigate} />
+      default: return <WalletPage onNavigate={handleNavigate} />
     }
   }
 
   return (
     <div className="min-h-screen" style={{backgroundColor: '#f7f9fc'}}>
-      <Header activePage={activePage} onNavigate={setActivePage} />
-      <Navigation activePage={activePage} onNavigate={setActivePage} />
+      <Header activePage={activePage} onNavigate={handleNavigate} />
+      <Navigation activePage={activePage} onNavigate={handleNavigate} />
       <main className="max-w-5xl mx-auto px-4 pb-16 pt-4 animate-fade-in">
         {renderPage()}
       </main>

@@ -10,7 +10,8 @@ import { cn } from '../lib/utils'
 import type { PageId } from '../App'
 
 interface ProgramsPageProps {
-  onNavigate: (page: PageId) => void
+  onNavigate: (page: PageId, program?: string) => void
+  initialProgram?: string
 }
 
 type ProgramId = 'cccap' | 'upk' | 'larimer' | 'cap' | 'cctc'
@@ -68,8 +69,10 @@ function RenewalAlert({ deadline, programId, onNavigate }: { deadline: string; p
   )
 }
 
-export function ProgramsPage({ onNavigate }: ProgramsPageProps) {
-  const [activeProgram, setActiveProgram] = useState<ProgramId>('cccap')
+export function ProgramsPage({ onNavigate, initialProgram }: ProgramsPageProps) {
+  const [activeProgram, setActiveProgram] = useState<ProgramId>(
+    (initialProgram as ProgramId) || 'cccap'
+  )
   const prog = programs[activeProgram]
   const enrolledKids = children.filter(c => c.programs.includes(activeProgram))
   const programTx = transactions.filter(tx => tx.programs.includes(activeProgram))
