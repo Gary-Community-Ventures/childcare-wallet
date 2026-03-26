@@ -73,9 +73,35 @@ export function ProgramsPage({ onNavigate, initialProgram }: ProgramsPageProps) 
   const [activeProgram, setActiveProgram] = useState<ProgramId>(
     (initialProgram as ProgramId) || 'cccap'
   )
+  const [selectedChild, setSelectedChild] = useState<string | null>(null)
+
+  const selectedChildData = selectedChild ? children.find(c => c.id === selectedChild) ?? null : null
+
+  const handleChildSelect = (childId: string | null) => {
+    setSelectedChild(childId)
+    if (childId) {
+      const childData = children.find(c => c.id === childId)
+      // If active program isn't available for this child (and isn't family-level cctc), switch to first match
+      if (childData && activeProgram !== 'cctc' && !childData.programs.includes(activeProgram)) {
+        const first = programList.find(p => childData.programs.includes(p.id))
+        if (first) setActiveProgram(first.id)
+      }
+    }
+  }
+
+  // cctc is family-level — show it regardless of which child is selected
+  const visiblePrograms = selectedChildData
+    ? programList.filter(p => p.id === 'cctc' || selectedChildData.programs.includes(p.id))
+    : programList
+
   const prog = programs[activeProgram]
-  const enrolledKids = children.filter(c => c.programs.includes(activeProgram))
-  const programTx = transactions.filter(tx => tx.programs.includes(activeProgram))
+  const enrolledKids = children.filter(c =>
+    c.programs.includes(activeProgram) && (!selectedChildData || c.id === selectedChildData.id)
+  )
+  const programTx = transactions.filter(tx =>
+    tx.programs.includes(activeProgram) &&
+    (!selectedChildData || tx.children.includes(selectedChildData.name.split(' ')[0]))
+  )
 
   // Soft pastel backgrounds for program cards (light, not dark)
   const lightBgMap: Record<ProgramId, string> = {
@@ -103,14 +129,48 @@ export function ProgramsPage({ onNavigate, initialProgram }: ProgramsPageProps) 
 
   return (
     <div className="space-y-6 animate-slide-up">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-slate-900">My Programs</h1>
-        <p className="text-slate-500 text-sm mt-1">All active childcare assistance programs for your family</p>
+      <div className="flex items-start justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-slate-900">My Programs</h1>
+          <p className="text-slate-500 text-sm mt-1">
+            {selectedChildData
+              ? `Showing ${selectedChildData.name.split(' ')[0]}'s ${visiblePrograms.length} programs`
+              : 'All active childcare assistance programs for your family'}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => handleChildSelect(null)}
+            className={cn(
+              'text-xs font-semibold px-3 py-1.5 rounded-full border transition-all',
+              !selectedChild
+                ? 'bg-slate-800 text-white border-slate-800 shadow-sm'
+                : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'
+            )}
+          >
+            All
+          </button>
+          {children.map(child => (
+            <button
+              key={child.id}
+              onClick={() => handleChildSelect(selectedChild === child.id ? null : child.id)}
+              className={cn(
+                'flex items-center gap-1.5 rounded-full px-3 py-1.5 border transition-all text-xs font-semibold',
+                selectedChild === child.id
+                  ? 'bg-white border-slate-700 ring-2 ring-slate-300 shadow-sm text-slate-800'
+                  : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300 shadow-sm'
+              )}
+            >
+              <span>{child.avatar}</span>
+              {child.name.split(' ')[0]}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Program selector */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        {programList.map(({ id, icon, shortDesc }) => {
+        {visiblePrograms.map(({ id, icon, shortDesc }) => {
           const p = programs[id]
           const isActive = activeProgram === id
           return (
