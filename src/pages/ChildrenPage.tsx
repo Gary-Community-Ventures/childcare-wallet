@@ -66,6 +66,21 @@ export function ChildrenPage() {
                         {primaryProvider.name}
                       </div>
                     )}
+                    {/* Program badges in header */}
+                    <div className="flex flex-wrap gap-1.5 mt-3">
+                      {child.programs.map(progId => {
+                        const prog = programs[progId as keyof typeof programs]
+                        if (!prog) return null
+                        return (
+                          <span
+                            key={progId}
+                            className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-white/20 text-white border border-white/30"
+                          >
+                            {prog.icon} {prog.name}
+                          </span>
+                        )
+                      })}
+                    </div>
                   </div>
                 </div>
                 <div className="glass rounded-xl px-4 py-3 text-right flex-shrink-0">
@@ -123,34 +138,6 @@ export function ChildrenPage() {
                           <div className="text-xs text-slate-400 mt-1 truncate">{prog.name === a.name ? prog.fullName : prog.name}</div>
                         )}
                       </div>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {/* Enrolled programs list */}
-              <div>
-                <h3 className="font-semibold text-slate-900 text-sm mb-3">Enrolled Programs</h3>
-                <div className="flex flex-wrap gap-2">
-                  {child.programs.map(progId => {
-                    const prog = programs[progId as keyof typeof programs]
-                    if (!prog) return null
-                    return (
-                      <span
-                        key={progId}
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border"
-                        style={{
-                          backgroundColor: prog.lightColor,
-                          color: prog.color,
-                          borderColor: prog.color + '30',
-                        }}
-                      >
-                        {prog.icon} {prog.name}
-                        {prog.status === 'active'
-                          ? <span className="w-1.5 h-1.5 rounded-full bg-green-500 ml-0.5" />
-                          : <span className="w-1.5 h-1.5 rounded-full bg-amber-400 ml-0.5" />
-                        }
-                      </span>
                     )
                   })}
                 </div>
