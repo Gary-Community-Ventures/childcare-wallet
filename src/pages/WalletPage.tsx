@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowUpRight, TrendingUp, Calendar, AlertTriangle, CheckCircle, Clock, ChevronRight, PlusCircle, Send, X, Sparkles } from 'lucide-react'
+import { ArrowUpRight, TrendingUp, Calendar, AlertTriangle, CheckCircle, Clock, ChevronRight, ChevronDown, PlusCircle, Send, X, Sparkles } from 'lucide-react'
 import { family, walletSummary, transactions, programs, children, providers } from '../data/mockData'
 import { formatCurrency, formatShortDate, daysUntil, getUrgencyLevel } from '../lib/utils'
 import { cn } from '../lib/utils'
@@ -224,6 +224,7 @@ export function WalletPage({ onNavigate }: WalletPageProps) {
   const [payModalOpen, setPayModalOpen] = useState(false)
   const [eligibilityBannerDismissed, setEligibilityBannerDismissed] = useState(false)
   const [selectedChild, setSelectedChild] = useState<string | null>(null)
+  const [deadlinesCollapsed, setDeadlinesCollapsed] = useState(false)
 
   const activeWallet = selectedChild ? childWallets[selectedChild] : walletSummary
   const selectedChildData = children.find(c => c.id === selectedChild) ?? null
@@ -408,45 +409,57 @@ export function WalletPage({ onNavigate }: WalletPageProps) {
       {/* Upcoming Deadlines */}
       {visibleReminders.length > 0 && (
         <div id="upcoming-deadlines">
-          <h2 className="font-semibold text-slate-700 text-base mb-3 flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-amber-400" />
-            {selectedChildData ? `${selectedChildData.name.split(' ')[0]}'s Upcoming Deadlines` : 'Upcoming Deadlines'}
-          </h2>
-          <div className="space-y-2">
-            {visibleReminders.map((reminder) => {
-              const days = daysUntil(reminder.deadline)
-              const urgency = getUrgencyLevel(days)
-              return (
-                <div key={reminder.id} className={cn(
-                  'rounded-xl border p-4 flex items-start gap-3',
-                  urgency === 'critical' ? 'bg-rose-50 border-rose-200' :
-                  urgency === 'warning' ? 'bg-amber-50 border-amber-200' :
-                  'bg-slate-50 border-slate-200'
-                )}>
-                  <Clock className={cn('w-4 h-4 flex-shrink-0 mt-0.5',
-                    urgency === 'critical' ? 'text-rose-400' :
-                    urgency === 'warning' ? 'text-amber-400' : 'text-slate-400'
-                  )} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-slate-600 text-sm">{reminder.message}</p>
-                    <div className="flex items-center gap-2 mt-1.5">
-                      <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full',
-                        urgency === 'critical' ? 'bg-rose-100 text-rose-600' :
-                        urgency === 'warning' ? 'bg-amber-100 text-amber-600' :
-                        'bg-slate-100 text-slate-500'
-                      )}>
-                        {days > 0 ? `${days} days away` : 'Past due'}
-                      </span>
-                      <span className="text-xs text-slate-400">{formatShortDate(reminder.deadline)}</span>
+          <button
+            onClick={() => setDeadlinesCollapsed(c => !c)}
+            className="w-full flex items-center justify-between mb-3 group"
+          >
+            <h2 className="font-semibold text-slate-700 text-base flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-amber-400" />
+              {selectedChildData ? `${selectedChildData.name.split(' ')[0]}'s Upcoming Deadlines` : 'Upcoming Deadlines'}
+              <span className="text-xs font-normal text-slate-400">({visibleReminders.length})</span>
+            </h2>
+            <ChevronDown className={cn(
+              'w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-transform duration-200',
+              deadlinesCollapsed ? '-rotate-90' : ''
+            )} />
+          </button>
+          {!deadlinesCollapsed && (
+            <div className="space-y-2">
+              {visibleReminders.map((reminder) => {
+                const days = daysUntil(reminder.deadline)
+                const urgency = getUrgencyLevel(days)
+                return (
+                  <div key={reminder.id} className={cn(
+                    'rounded-xl border p-4 flex items-start gap-3',
+                    urgency === 'critical' ? 'bg-rose-50 border-rose-200' :
+                    urgency === 'warning' ? 'bg-amber-50 border-amber-200' :
+                    'bg-slate-50 border-slate-200'
+                  )}>
+                    <Clock className={cn('w-4 h-4 flex-shrink-0 mt-0.5',
+                      urgency === 'critical' ? 'text-rose-400' :
+                      urgency === 'warning' ? 'text-amber-400' : 'text-slate-400'
+                    )} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-slate-600 text-sm">{reminder.message}</p>
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full',
+                          urgency === 'critical' ? 'bg-rose-100 text-rose-600' :
+                          urgency === 'warning' ? 'bg-amber-100 text-amber-600' :
+                          'bg-slate-100 text-slate-500'
+                        )}>
+                          {days > 0 ? `${days} days away` : 'Past due'}
+                        </span>
+                        <span className="text-xs text-slate-400">{formatShortDate(reminder.deadline)}</span>
+                      </div>
                     </div>
+                    <button onClick={() => onNavigate('apply')} className="text-slate-300 hover:text-sky-500 flex-shrink-0">
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
                   </div>
-                  <button onClick={() => onNavigate('apply')} className="text-slate-300 hover:text-sky-500 flex-shrink-0">
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              )
-            })}
-          </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       )}
 
