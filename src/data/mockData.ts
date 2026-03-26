@@ -240,16 +240,20 @@ export const providers = [
     rating: '3-Star QRIS',
     hours: 'M–F, 7:30 AM – 5:00 PM',
     ageRange: 'Infant – School Age',
-    enrolledChildren: [],
+    enrolledChildren: ['c1', 'c2'],
     programs: ['cccap', 'larimer', 'cap'],
     logo: '🌻',
     color: '#216737',
     bgColor: '#e0f5e6',
     capacity: 6,
-    currentEnrollment: 4,
-    acceptingEnrollment: true,
+    currentEnrollment: 6,
+    acceptingEnrollment: false,
     specialties: ['Bilingual care', 'Nature-based activities', 'Flexible scheduling'],
-    monthlyPayments: [],
+    monthlyPayments: [
+      { month: 'Mar 2025', amount: 300, date: '2025-03-01', status: 'paid', programs: ['cccap'] },
+      { month: 'Feb 2025', amount: 300, date: '2025-02-01', status: 'paid', programs: ['cccap'] },
+      { month: 'Jan 2025', amount: 500, date: '2025-01-01', status: 'paid', programs: ['cccap'] },
+    ],
   },
   {
     id: 'p3',
@@ -281,6 +285,12 @@ export const providers = [
 ]
 
 // breakdown shows how each payment was funded across programs
+const sunflowerMiguelBreakdown = [
+  { program: 'cccap', name: 'CCCAP', amount: 300, color: '#0369a1', lightColor: '#e0f2fe' },
+]
+const sunflowerSofiaBreakdown = [
+  { program: 'cccap', name: 'CCCAP', amount: 200, color: '#0369a1', lightColor: '#e0f2fe' },
+]
 const littleStarsBreakdown = [
   { program: 'cccap', name: 'CCCAP', amount: 940, color: '#0369a1', lightColor: '#e0f2fe' },
   { program: 'upk', name: 'UPK Colorado', amount: 440, color: '#216737', lightColor: '#dcfce7' },
@@ -301,6 +311,11 @@ export const transactions = [
   { id: 't6', date: '2025-01-01', provider: 'Abuela Carmen (FFN)', providerId: 'p3', amount: 560, program: 'CAP + Larimer', programs: ['cap', 'larimer'], status: 'completed', type: 'payment', children: ['Miguel'], breakdown: abuelaBreakdown },
   { id: 't7', date: '2024-12-01', provider: 'Little Stars Learning Center', providerId: 'p1', amount: 1580, program: 'Mixed', programs: ['cccap', 'upk', 'larimer', 'cap'], status: 'completed', type: 'payment', children: ['Sofia'], breakdown: littleStarsBreakdown },
   { id: 't8', date: '2024-12-01', provider: 'Abuela Carmen (FFN)', providerId: 'p3', amount: 560, program: 'CAP + Larimer', programs: ['cap', 'larimer'], status: 'completed', type: 'payment', children: ['Miguel'], breakdown: abuelaBreakdown },
+  { id: 't9', date: '2025-03-01', provider: 'Sunflower Home Daycare', providerId: 'p2', amount: 300, program: 'CCCAP', programs: ['cccap'], status: 'completed', type: 'payment', children: ['Miguel'], breakdown: sunflowerMiguelBreakdown },
+  { id: 't10', date: '2025-02-01', provider: 'Sunflower Home Daycare', providerId: 'p2', amount: 300, program: 'CCCAP', programs: ['cccap'], status: 'completed', type: 'payment', children: ['Miguel'], breakdown: sunflowerMiguelBreakdown },
+  { id: 't11', date: '2025-01-01', provider: 'Sunflower Home Daycare', providerId: 'p2', amount: 300, program: 'CCCAP', programs: ['cccap'], status: 'completed', type: 'payment', children: ['Miguel'], breakdown: sunflowerMiguelBreakdown },
+  { id: 't12', date: '2025-01-01', provider: 'Sunflower Home Daycare', providerId: 'p2', amount: 200, program: 'CCCAP', programs: ['cccap'], status: 'completed', type: 'payment', children: ['Sofia'], breakdown: sunflowerSofiaBreakdown },
+  { id: 't13', date: '2024-12-01', provider: 'Sunflower Home Daycare', providerId: 'p2', amount: 300, program: 'CCCAP', programs: ['cccap'], status: 'completed', type: 'payment', children: ['Miguel'], breakdown: sunflowerMiguelBreakdown },
 ]
 
 export const applications = [

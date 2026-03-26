@@ -34,10 +34,10 @@ export function ChildrenPage() {
       {children.map(child => {
         const amounts = childAmounts[child.id] || []
         const total = amounts.reduce((sum, a) => sum + a.amount, 0)
-        const primaryProvider = providers.find(p => p.id === child.primaryProvider)
-        const childTx = transactions.filter(tx =>
-          tx.children.includes(child.name.split(' ')[0])
-        )
+        const childProviders = providers.filter(p => p.enrolledChildren.includes(child.id))
+        const childTx = transactions
+          .filter(tx => tx.children.includes(child.name.split(' ')[0]))
+          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
         return (
           <div key={child.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -60,10 +60,17 @@ export function ChildrenPage() {
                         <Calendar className="w-3.5 h-3.5" /> DOB {formatShortDate(child.dob)}
                       </span>
                     </div>
-                    {primaryProvider && (
-                      <div className="flex items-center gap-1 mt-1 text-white/70 text-sm">
-                        <MapPin className="w-3.5 h-3.5" />
-                        {primaryProvider.name}
+                    {childProviders.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1">
+                        {childProviders.map((p, i) => (
+                          <div key={p.id} className="flex items-center gap-1 text-white/70 text-sm">
+                            <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                            {p.name}
+                            {i === 0 && childProviders.length > 1 && (
+                              <span className="text-white/40 text-xs ml-0.5">(primary)</span>
+                            )}
+                          </div>
+                        ))}
                       </div>
                     )}
                     {/* Program badges in header */}
@@ -150,10 +157,10 @@ export function ChildrenPage() {
                   <p className="text-slate-400 text-sm">No payments recorded yet.</p>
                 ) : (
                   <div className="rounded-xl border border-slate-200 overflow-hidden">
-                    {childTx.slice(0, 4).map((tx, i) => (
+                    {childTx.slice(0, 6).map((tx, i) => (
                       <div
                         key={tx.id}
-                        className={i < Math.min(childTx.length, 4) - 1 ? 'border-b border-slate-100' : ''}
+                        className={i < Math.min(childTx.length, 6) - 1 ? 'border-b border-slate-100' : ''}
                       >
                         {/* Top row */}
                         <div className="flex items-center gap-3 px-4 py-3">
