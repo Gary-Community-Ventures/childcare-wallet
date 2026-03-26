@@ -193,12 +193,51 @@ function PayModal({ onClose }: { onClose: () => void }) {
   )
 }
 
+const childWallets: Record<string, typeof walletSummary> = {
+  c1: {
+    totalMonthlyBalance: 1940,
+    available: 1940,
+    ytdSpent: 5820,
+    breakdown: [
+      { program: 'cccap', name: 'CCCAP', amount: 940, color: '#0369a1', pct: 48 },
+      { program: 'upk', name: 'UPK Colorado', amount: 800, color: '#216737', pct: 41 },
+      { program: 'larimer', name: 'Larimer County', amount: 150, color: '#b45309', pct: 8 },
+      { program: 'cap', name: 'CAP Pilot', amount: 50, color: '#6d28d9', pct: 3 },
+    ],
+    lastUpdated: '2025-03-01',
+  },
+  c2: {
+    totalMonthlyBalance: 800,
+    available: 800,
+    ytdSpent: 2400,
+    breakdown: [
+      { program: 'cccap', name: 'CCCAP', amount: 300, color: '#0369a1', pct: 37 },
+      { program: 'larimer', name: 'Larimer County', amount: 150, color: '#b45309', pct: 19 },
+      { program: 'cap', name: 'CAP Pilot', amount: 350, color: '#6d28d9', pct: 44 },
+    ],
+    lastUpdated: '2025-03-01',
+  },
+}
+
 export function WalletPage({ onNavigate }: WalletPageProps) {
   const [payModalOpen, setPayModalOpen] = useState(false)
   const [eligibilityBannerDismissed, setEligibilityBannerDismissed] = useState(false)
+  const [selectedChild, setSelectedChild] = useState<string | null>(null)
 
-  const allReminders = Object.values(programs).flatMap(p => p.reminders || [])
-    .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
+  const activeWallet = selectedChild ? childWallets[selectedChild] : walletSummary
+  const selectedChildData = children.find(c => c.id === selectedChild) ?? null
+
+  const allReminders = Object.values(programs).flatMap(p =>
+    (p.reminders || []).map(r => ({ ...r, progEnrolledChildren: ((p as any).enrolledChildren as string[]) || [] }))
+  ).sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
+
+  const visibleReminders = selectedChildData
+    ? allReminders.filter(r => r.progEnrolledChildren.length === 0 || r.progEnrolledChildren.includes(selectedChildData.id))
+    : allReminders
+
+  const visibleTransactions = selectedChildData
+    ? transactions.filter(tx => tx.children.includes(selectedChildData.name.split(' ')[0]))
+    : transactions
 
   return (
     <div className="space-y-5 animate-slide-up">
@@ -263,20 +302,22 @@ export function WalletPage({ onNavigate }: WalletPageProps) {
         <div className="p-6">
           <div className="flex items-start justify-between mb-5">
             <div>
-              <div className="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-1">Monthly Wallet Balance</div>
-              <div className="font-display text-4xl font-bold text-slate-800 tracking-tight">
-                {formatCurrency(walletSummary.totalMonthlyBalance)}
+              <div className="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-1">
+                {selectedChildData ? `${selectedChildData.name.split(' ')[0]}'s Monthly Balance` : 'Monthly Wallet Balance'}
               </div>
-              <div className="text-slate-400 text-sm mt-1">across 4 active programs</div>
+              <div className="font-display text-4xl font-bold text-slate-800 tracking-tight">
+                {formatCurrency(activeWallet.totalMonthlyBalance)}
+              </div>
+              <div className="text-slate-400 text-sm mt-1">across {activeWallet.breakdown.length} active programs</div>
             </div>
             <div className="bg-white rounded-xl px-3 py-2 border border-slate-100 shadow-sm">
               <div className="text-slate-400 text-xs">YTD Disbursed</div>
-              <div className="text-slate-800 font-bold text-lg">{formatCurrency(walletSummary.ytdSpent)}</div>
+              <div className="text-slate-800 font-bold text-lg">{formatCurrency(activeWallet.ytdSpent)}</div>
             </div>
           </div>
 
           <div className="flex h-2 rounded-full overflow-hidden gap-0.5 mb-4">
-            {walletSummary.breakdown.map((item) => (
+            {activeWallet.breakdown.map((item) => (
               <div key={item.program} className="h-full rounded-sm opacity-60"
                 style={{ width: `${item.pct}%`, backgroundColor: item.color }}
                 title={`${item.name}: ${formatCurrency(item.amount)}`}
@@ -285,7 +326,7 @@ export function WalletPage({ onNavigate }: WalletPageProps) {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
-            {walletSummary.breakdown.map((item) => (
+            {activeWallet.breakdown.map((item) => (
               <div key={item.program} className="bg-white rounded-xl px-3 py-2 border border-slate-100">
                 <div className="flex items-center gap-1.5 mb-0.5">
                   <div className="w-2 h-2 rounded-full opacity-70" style={{ backgroundColor: item.color }} />
@@ -305,21 +346,43 @@ export function WalletPage({ onNavigate }: WalletPageProps) {
             Pay a Provider
           </button>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
+              <button
+                onClick={() => setSelectedChild(null)}
+                className={cn(
+                  'text-xs font-semibold px-3 py-1.5 rounded-full border transition-all',
+                  !selectedChild
+                    ? 'bg-teal-600 text-white border-teal-600 shadow-sm'
+                    : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'
+                )}
+              >
+                All
+              </button>
               {children.map(child => (
-                <div key={child.id} className="flex items-center gap-2 bg-white rounded-full px-3 py-1.5 border border-slate-100 shadow-sm">
+                <button
+                  key={child.id}
+                  onClick={() => setSelectedChild(selectedChild === child.id ? null : child.id)}
+                  className={cn(
+                    'flex items-center gap-2 rounded-full px-3 py-1.5 border transition-all',
+                    selectedChild === child.id
+                      ? 'bg-white border-teal-400 ring-2 ring-teal-300 shadow-sm'
+                      : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'
+                  )}
+                >
                   <span className="text-base">{child.avatar}</span>
-                  <div>
-                    <div className="text-slate-700 text-xs font-semibold">{child.name.split(' ')[0]}</div>
+                  <div className="text-left">
+                    <div className={cn('text-xs font-semibold', selectedChild === child.id ? 'text-teal-700' : 'text-slate-700')}>
+                      {child.name.split(' ')[0]}
+                    </div>
                     <div className="text-slate-400 text-xs">Age {child.age}</div>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
             <div className="flex items-center gap-1.5 text-teal-600 text-xs font-medium">
               <div className="w-1.5 h-1.5 rounded-full bg-teal-400" />
-              All programs active
+              {selectedChildData ? `${selectedChildData.name.split(' ')[0]}'s programs` : 'All programs active'}
             </div>
           </div>
         </div>
@@ -342,14 +405,14 @@ export function WalletPage({ onNavigate }: WalletPageProps) {
       </div>
 
       {/* Upcoming Deadlines */}
-      {allReminders.length > 0 && (
+      {visibleReminders.length > 0 && (
         <div id="upcoming-deadlines">
           <h2 className="font-semibold text-slate-700 text-base mb-3 flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-amber-400" />
-            Upcoming Deadlines
+            {selectedChildData ? `${selectedChildData.name.split(' ')[0]}'s Upcoming Deadlines` : 'Upcoming Deadlines'}
           </h2>
           <div className="space-y-2">
-            {allReminders.map((reminder) => {
+            {visibleReminders.map((reminder) => {
               const days = daysUntil(reminder.deadline)
               const urgency = getUrgencyLevel(days)
               return (
@@ -389,7 +452,9 @@ export function WalletPage({ onNavigate }: WalletPageProps) {
       {/* Recent Payments */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold text-slate-700 text-base">Recent Payments</h2>
+          <h2 className="font-semibold text-slate-700 text-base">
+            {selectedChildData ? `${selectedChildData.name.split(' ')[0]}'s Recent Payments` : 'Recent Payments'}
+          </h2>
           <button onClick={() => onNavigate('programs')}
             className="text-sky-600 text-sm font-medium flex items-center gap-1 hover:text-sky-800"
           >
@@ -397,10 +462,10 @@ export function WalletPage({ onNavigate }: WalletPageProps) {
           </button>
         </div>
         <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-          {transactions.slice(0, 6).map((tx, i) => (
+          {visibleTransactions.slice(0, 6).map((tx, i) => (
             <div key={tx.id} className={cn(
               'flex items-center gap-4 px-5 py-3.5',
-              i < transactions.slice(0, 6).length - 1 ? 'border-b border-slate-100' : ''
+              i < visibleTransactions.slice(0, 6).length - 1 ? 'border-b border-slate-100' : ''
             )}>
               <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 text-base">
                 {tx.providerId === 'p1' ? '⭐' : tx.providerId === 'p3' ? '🏠' : '🌻'}
